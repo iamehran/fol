@@ -95,13 +95,7 @@ export default function ScrollSection() {
           </h2>
         </motion.div>
 
-        {/* Progress Line - Hidden on mobile, shown on md+ */}
-        <div className="absolute left-8 md:left-1/2 md:-translate-x-px top-64 bottom-32 w-1 bg-muted hidden md:block">
-          <motion.div
-            className="w-full bg-foreground origin-top"
-            style={{ height: lineHeight }}
-          />
-        </div>
+        {/* Progress Line - Hidden completely to avoid overlap */}
 
         {/* Features */}
         <div className="space-y-8 md:space-y-12 max-w-2xl mx-auto relative">

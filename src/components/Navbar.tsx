@@ -10,7 +10,7 @@ export default function Navbar() {
       initial={{ y: -100 }}
       animate={{ y: 0 }}
       transition={{ duration: 0.5 }}
-      className="fixed top-0 left-0 right-0 z-50 bg-background/90 backdrop-blur-sm border-b-[3px] border-foreground"
+      className="fixed top-0 left-0 right-0 z-50 bg-foreground border-b-[3px] border-foreground"
     >
       <div className="container mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16 md:h-20">
@@ -21,7 +21,7 @@ export default function Navbar() {
               alt="FigOut Labs" 
               className="h-12 w-auto transition-transform group-hover:scale-110 duration-300"
             />
-            <span className="font-bold text-xl uppercase tracking-tight hidden sm:block">FigOut Labs</span>
+            <span className="font-bold text-xl uppercase tracking-tight hidden sm:block text-background">FigOut Labs</span>
           </a>
 
           {/* Desktop CTA */}
