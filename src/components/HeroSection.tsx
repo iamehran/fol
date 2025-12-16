@@ -1,5 +1,6 @@
 import { motion, useScroll, useTransform } from 'framer-motion';
-import { useState, useRef, useMemo, useEffect } from 'react';
+import { useState, useRef, useMemo } from 'react';
+import { BackgroundLines } from '@/components/ui/background-lines';
 
 // Import tool icons
 import claudeIcon from '@/assets/icons/claude.svg';
@@ -305,8 +306,15 @@ export default function HeroSection() {
 
   return (
     <section ref={sectionRef} className="relative min-h-screen flex items-center justify-center overflow-hidden pt-20 bg-background">
-      {/* Creative Background */}
+      {/* Background Lines Animation Layer */}
       <div className="absolute inset-0 z-0">
+        <BackgroundLines svgOptions={{ duration: 12 }}>
+          <div />
+        </BackgroundLines>
+      </div>
+      
+      {/* Creative Background */}
+      <div className="absolute inset-0 z-[1]">
         {/* Gradient mesh */}
         <div className="absolute inset-0 bg-[radial-gradient(ellipse_80%_80%_at_50%_-20%,hsl(var(--primary)/0.15),transparent)]" />
         <div className="absolute inset-0 bg-[radial-gradient(ellipse_60%_60%_at_100%_100%,hsl(var(--accent)/0.08),transparent)]" />
@@ -335,7 +343,7 @@ export default function HeroSection() {
       
       {/* Constellation Field - covers entire background with parallax */}
       <motion.div 
-        className="absolute inset-0 z-[1] pointer-events-none"
+        className="absolute inset-0 z-[2] pointer-events-none"
         style={{ y: orbitY }}
       >
         <ConstellationField />
