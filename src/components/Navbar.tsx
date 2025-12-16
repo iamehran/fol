@@ -29,6 +29,7 @@ export default function Navbar() {
             <a
               href="#book"
               className="btn-brutal-primary text-sm"
+              style={{ boxShadow: '4px 4px 0px hsl(var(--primary))' }}
             >
               Book a call
             </a>
