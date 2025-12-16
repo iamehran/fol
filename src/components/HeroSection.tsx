@@ -53,36 +53,40 @@ interface ConstellationLine {
 function generateConstellationNodes(count: number): ConstellationNode[] {
   const nodes: ConstellationNode[] = [];
   
-  // Positions that avoid the center text area (roughly 25-75% horizontally, 30-70% vertically)
+  // Fixed positions - well-spaced, avoiding center text area completely
+  // Center area to avoid: roughly 15-85% horizontally, 25-75% vertically
   const safePositions = [
-    // Top row - far from center
-    { x: 5, y: 8 }, { x: 18, y: 5 }, { x: 35, y: 6 }, { x: 65, y: 5 }, { x: 82, y: 8 }, { x: 95, y: 10 },
-    // Left side
-    { x: 3, y: 25 }, { x: 8, y: 45 }, { x: 5, y: 65 }, { x: 10, y: 85 },
-    // Right side  
-    { x: 92, y: 28 }, { x: 95, y: 50 }, { x: 90, y: 72 }, { x: 95, y: 88 },
-    // Bottom row - far from center
-    { x: 8, y: 92 }, { x: 25, y: 95 }, { x: 45, y: 92 }, { x: 55, y: 95 }, { x: 75, y: 92 }, { x: 88, y: 95 },
-    // Extra corners
-    { x: 15, y: 15 }, { x: 85, y: 15 }, { x: 15, y: 85 }, { x: 85, y: 85 },
+    // Top corners - spread out
+    { x: 4, y: 6 }, { x: 96, y: 8 },
+    // Upper edges
+    { x: 2, y: 18 }, { x: 98, y: 20 },
+    // Mid-left side
+    { x: 3, y: 38 }, { x: 97, y: 35 },
+    // Lower-mid sides
+    { x: 2, y: 58 }, { x: 98, y: 55 },
+    // Lower sides  
+    { x: 4, y: 78 }, { x: 96, y: 75 },
+    // Bottom corners
+    { x: 3, y: 92 }, { x: 97, y: 94 },
+    // Bottom spread
+    { x: 20, y: 96 }, { x: 80, y: 98 },
+    { x: 40, y: 94 }, { x: 60, y: 96 },
   ];
   
   for (let i = 0; i < Math.min(count, safePositions.length); i++) {
     const pos = safePositions[i];
-    const x = pos.x + (Math.random() - 0.5) * 4;
-    const y = pos.y + (Math.random() - 0.5) * 4;
     
-    const angle = Math.atan2(y - 50, x - 50);
-    const distance = Math.sqrt((x - 50) ** 2 + (y - 50) ** 2);
+    const angle = Math.atan2(pos.y - 50, pos.x - 50);
+    const distance = Math.sqrt((pos.x - 50) ** 2 + (pos.y - 50) ** 2);
     
     nodes.push({
       id: i,
       icon: baseIcons[i % baseIcons.length],
-      x: Math.max(2, Math.min(98, x)),
-      y: Math.max(2, Math.min(98, y)),
-      size: 40 + Math.random() * 16,
+      x: pos.x,
+      y: pos.y,
+      size: 44,
       opacity: 1,
-      pulseDelay: Math.random() * 4,
+      pulseDelay: i * 0.3,
       angle,
       distance,
     });
@@ -92,7 +96,7 @@ function generateConstellationNodes(count: number): ConstellationNode[] {
 
 function generateConstellationLines(nodes: ConstellationNode[]): ConstellationLine[] {
   const lines: ConstellationLine[] = [];
-  const maxDistance = 30;
+  const maxDistance = 50;
   
   for (let i = 0; i < nodes.length; i++) {
     for (let j = i + 1; j < nodes.length; j++) {
@@ -100,12 +104,12 @@ function generateConstellationLines(nodes: ConstellationNode[]): ConstellationLi
       const dy = nodes[i].y - nodes[j].y;
       const distance = Math.sqrt(dx * dx + dy * dy);
       
-      if (distance < maxDistance && Math.random() > 0.4) {
+      if (distance < maxDistance && Math.random() > 0.3) {
         lines.push({
           id: `${i}-${j}`,
           from: i,
           to: j,
-          delay: Math.random() * 2,
+          delay: Math.random() * 1.5,
         });
       }
     }
@@ -159,13 +163,19 @@ function ConstellationIcon({ node, index }: { node: ConstellationNode; index: nu
 }
 
 function ConstellationField() {
-  const nodes = useMemo(() => generateConstellationNodes(24), []);
+  const nodes = useMemo(() => generateConstellationNodes(16), []);
   const lines = useMemo(() => generateConstellationLines(nodes), [nodes]);
   
   return (
     <div className="absolute inset-0 overflow-hidden">
-      {/* Connecting Lines - black color */}
+      {/* Connecting Lines - black, thin, dashed with animation */}
       <svg className="absolute inset-0 w-full h-full">
+        <defs>
+          <pattern id="dashPattern" patternUnits="userSpaceOnUse" width="12" height="1">
+            <line x1="0" y1="0" x2="6" y2="0" stroke="black" strokeWidth="1" />
+          </pattern>
+        </defs>
+        
         {lines.map((line) => {
           const fromNode = nodes[line.from];
           const toNode = nodes[line.to];
@@ -177,22 +187,25 @@ function ConstellationField() {
               y1={`${fromNode.y}%`}
               x2={`${toNode.x}%`}
               y2={`${toNode.y}%`}
-              stroke="rgba(0, 0, 0, 0.6)"
-              strokeWidth="1.5"
+              stroke="black"
+              strokeWidth="1"
+              strokeDasharray="8 4"
               initial={{ pathLength: 0, opacity: 0 }}
               animate={{ 
                 pathLength: 1, 
                 opacity: 1,
+                strokeDashoffset: [0, -24],
               }}
               transition={{
-                pathLength: { duration: 1.5, delay: 1 + line.delay },
-                opacity: { duration: 1, delay: 1 + line.delay },
+                pathLength: { duration: 1.2, delay: 0.8 + line.delay },
+                opacity: { duration: 0.8, delay: 0.8 + line.delay },
+                strokeDashoffset: { duration: 2, repeat: Infinity, ease: "linear", delay: 2 + line.delay },
               }}
             />
           );
         })}
         
-        {/* Animated white pulses on lines */}
+        {/* Animated white dots flowing on lines */}
         {lines.map((line, index) => {
           const fromNode = nodes[line.from];
           const toNode = nodes[line.to];
@@ -200,20 +213,20 @@ function ConstellationField() {
           return (
             <motion.circle
               key={`pulse-${line.id}`}
-              r="4"
+              r="3"
               fill="white"
-              stroke="rgba(0,0,0,0.3)"
+              stroke="black"
               strokeWidth="1"
               initial={{ opacity: 0 }}
               animate={{
                 cx: [`${fromNode.x}%`, `${toNode.x}%`],
                 cy: [`${fromNode.y}%`, `${toNode.y}%`],
-                opacity: [0, 1, 0],
+                opacity: [0, 1, 1, 0],
               }}
               transition={{
-                duration: 3,
+                duration: 2.5,
                 repeat: Infinity,
-                delay: 3 + index * 0.3,
+                delay: 2.5 + index * 0.4,
                 ease: "linear",
               }}
             />
@@ -379,14 +392,14 @@ export default function HeroSection() {
                           opacity: 1, 
                           scale: 1, 
                           y: 0,
-                          x: problemMouseX * 0.3 
+                          x: problemMouseX * 0.3 - 20
                         }}
                         transition={{ 
                           opacity: { duration: 0.2 },
                           scale: { duration: 0.2 },
                           x: { duration: 0.1, ease: "easeOut" }
                         }}
-                        className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 z-50 pointer-events-none"
+                        className="absolute bottom-[90%] left-1/3 -translate-x-1/2 z-50 pointer-events-none"
                       >
                         <img 
                           src={fireBlazeGif} 
