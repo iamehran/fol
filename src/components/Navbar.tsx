@@ -32,7 +32,10 @@ export default function Navbar() {
             {/* Logo */}
             <a href="#" className="flex items-center gap-3 group shadow-sm rounded-sm opacity-100 border border-primary border-solid">
               <img src={figoutLogo} alt="FigOut Labs" className="h-12 w-auto transition-transform group-hover:scale-110 duration-300" />
-              <span className="font-bold text-xl uppercase tracking-tight hidden sm:block text-background">FigOut Labs </span>
+              <span className="font-bold text-xl tracking-tight hidden sm:block">
+                <span className="text-primary">FigOut</span>
+                <span className="text-background"> Labs</span>
+              </span>
             </a>
 
             {/* Desktop CTA */}
