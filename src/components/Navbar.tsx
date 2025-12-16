@@ -1,5 +1,6 @@
 import { motion } from 'framer-motion';
 import { useState } from 'react';
+import figoutLogo from '@/assets/figout-logo.png';
 
 export default function Navbar() {
   const [isOpen, setIsOpen] = useState(false);
@@ -15,10 +16,12 @@ export default function Navbar() {
         <div className="flex items-center justify-between h-16 md:h-20">
           {/* Logo */}
           <a href="#" className="flex items-center gap-3 group">
-            <div className="w-10 h-10 bg-foreground flex items-center justify-center transition-transform group-hover:rotate-90 duration-300">
-              <span className="text-background font-bold text-xl">●</span>
-            </div>
-            <span className="font-bold text-xl uppercase tracking-tight hidden sm:block">Studio</span>
+            <img 
+              src={figoutLogo} 
+              alt="FigOut Labs" 
+              className="h-8 w-auto transition-transform group-hover:scale-110 duration-300"
+            />
+            <span className="font-bold text-xl uppercase tracking-tight hidden sm:block">FigOut Labs</span>
           </a>
 
           {/* Desktop CTA */}

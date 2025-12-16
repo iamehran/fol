@@ -1,4 +1,5 @@
 import { motion } from 'framer-motion';
+import figoutLogo from '@/assets/figout-logo.png';
 
 export default function Footer() {
   const currentYear = new Date().getFullYear();
@@ -14,10 +15,12 @@ export default function Footer() {
             viewport={{ once: true }}
             className="flex items-center gap-3"
           >
-            <div className="w-10 h-10 bg-foreground flex items-center justify-center">
-              <span className="text-background font-bold text-xl">●</span>
-            </div>
-            <span className="font-bold text-xl uppercase tracking-tight">Studio</span>
+            <img 
+              src={figoutLogo} 
+              alt="FigOut Labs" 
+              className="h-8 w-auto"
+            />
+            <span className="font-bold text-xl uppercase tracking-tight">FigOut Labs</span>
           </motion.div>
 
           {/* Links */}
