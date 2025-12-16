@@ -50,30 +50,45 @@ interface ConstellationLine {
   delay: number;
 }
 
-function generateConstellationNodes(count: number): ConstellationNode[] {
+function generateConstellationNodes(): ConstellationNode[] {
   const nodes: ConstellationNode[] = [];
   
-  // Fixed positions - well-spaced, avoiding center text area completely
-  // Center area to avoid: roughly 15-85% horizontally, 25-75% vertically
+  // Strategic positions outside the red box (center exclusion: ~17%-83% X, ~8%-88% Y)
+  // Icons spread across left strip, right strip, top strip, bottom strip
   const safePositions = [
-    // Top corners - spread out
-    { x: 4, y: 6 }, { x: 96, y: 8 },
-    // Upper edges
-    { x: 2, y: 18 }, { x: 98, y: 20 },
-    // Mid-left side
-    { x: 3, y: 38 }, { x: 97, y: 35 },
-    // Lower-mid sides
-    { x: 2, y: 58 }, { x: 98, y: 55 },
-    // Lower sides  
-    { x: 4, y: 78 }, { x: 96, y: 75 },
-    // Bottom corners
-    { x: 3, y: 92 }, { x: 97, y: 94 },
-    // Bottom spread
-    { x: 20, y: 96 }, { x: 80, y: 98 },
-    { x: 40, y: 94 }, { x: 60, y: 96 },
+    // LEFT STRIP (0-15% X)
+    { x: 3, y: 8, size: 52 },
+    { x: 2, y: 30, size: 56 },
+    { x: 4, y: 52, size: 48 },
+    { x: 2, y: 75, size: 54 },
+    { x: 5, y: 92, size: 50 },
+    
+    // RIGHT STRIP (85-100% X)
+    { x: 97, y: 6, size: 50 },
+    { x: 96, y: 28, size: 54 },
+    { x: 98, y: 48, size: 52 },
+    { x: 95, y: 68, size: 56 },
+    { x: 97, y: 88, size: 48 },
+    
+    // BOTTOM STRIP (below CTA, 90-100% Y)
+    { x: 20, y: 95, size: 48 },
+    { x: 38, y: 97, size: 52 },
+    { x: 55, y: 94, size: 50 },
+    { x: 72, y: 96, size: 54 },
+    { x: 88, y: 95, size: 50 },
+    
+    // TOP-LEFT corner cluster
+    { x: 10, y: 4, size: 46 },
+    
+    // TOP-RIGHT corner cluster  
+    { x: 90, y: 3, size: 48 },
+    
+    // Additional bottom corner icons
+    { x: 8, y: 98, size: 46 },
+    { x: 92, y: 98, size: 46 },
   ];
   
-  for (let i = 0; i < Math.min(count, safePositions.length); i++) {
+  for (let i = 0; i < safePositions.length; i++) {
     const pos = safePositions[i];
     
     const angle = Math.atan2(pos.y - 50, pos.x - 50);
@@ -84,9 +99,9 @@ function generateConstellationNodes(count: number): ConstellationNode[] {
       icon: baseIcons[i % baseIcons.length],
       x: pos.x,
       y: pos.y,
-      size: 44,
+      size: pos.size,
       opacity: 1,
-      pulseDelay: i * 0.3,
+      pulseDelay: i * 0.2,
       angle,
       distance,
     });
@@ -94,26 +109,39 @@ function generateConstellationNodes(count: number): ConstellationNode[] {
   return nodes;
 }
 
+// Create specific connections for a network look
 function generateConstellationLines(nodes: ConstellationNode[]): ConstellationLine[] {
   const lines: ConstellationLine[] = [];
-  const maxDistance = 50;
   
-  for (let i = 0; i < nodes.length; i++) {
-    for (let j = i + 1; j < nodes.length; j++) {
-      const dx = nodes[i].x - nodes[j].x;
-      const dy = nodes[i].y - nodes[j].y;
-      const distance = Math.sqrt(dx * dx + dy * dy);
-      
-      if (distance < maxDistance && Math.random() > 0.3) {
-        lines.push({
-          id: `${i}-${j}`,
-          from: i,
-          to: j,
-          delay: Math.random() * 1.5,
-        });
-      }
-    }
+  // Manual connections for clean network look
+  // Left strip connections (vertical chain)
+  const leftNodes = [0, 1, 2, 3, 4];
+  for (let i = 0; i < leftNodes.length - 1; i++) {
+    lines.push({ id: `L${i}`, from: leftNodes[i], to: leftNodes[i + 1], delay: i * 0.15 });
   }
+  
+  // Right strip connections (vertical chain)
+  const rightNodes = [5, 6, 7, 8, 9];
+  for (let i = 0; i < rightNodes.length - 1; i++) {
+    lines.push({ id: `R${i}`, from: rightNodes[i], to: rightNodes[i + 1], delay: i * 0.15 });
+  }
+  
+  // Bottom strip connections (horizontal chain)
+  const bottomNodes = [10, 11, 12, 13, 14];
+  for (let i = 0; i < bottomNodes.length - 1; i++) {
+    lines.push({ id: `B${i}`, from: bottomNodes[i], to: bottomNodes[i + 1], delay: i * 0.15 });
+  }
+  
+  // Cross connections (diagonal network effect)
+  lines.push({ id: 'C1', from: 0, to: 15, delay: 0.5 }); // top-left cluster
+  lines.push({ id: 'C2', from: 5, to: 16, delay: 0.6 }); // top-right cluster
+  lines.push({ id: 'C3', from: 4, to: 17, delay: 0.7 }); // bottom-left corner
+  lines.push({ id: 'C4', from: 9, to: 18, delay: 0.8 }); // bottom-right corner
+  lines.push({ id: 'C5', from: 4, to: 10, delay: 0.9 }); // left to bottom
+  lines.push({ id: 'C6', from: 9, to: 14, delay: 1.0 }); // right to bottom
+  lines.push({ id: 'C7', from: 17, to: 10, delay: 1.1 }); // corner to bottom
+  lines.push({ id: 'C8', from: 18, to: 14, delay: 1.2 }); // corner to bottom
+  
   return lines;
 }
 
@@ -163,7 +191,7 @@ function ConstellationIcon({ node, index }: { node: ConstellationNode; index: nu
 }
 
 function ConstellationField() {
-  const nodes = useMemo(() => generateConstellationNodes(16), []);
+  const nodes = useMemo(() => generateConstellationNodes(), []);
   const lines = useMemo(() => generateConstellationLines(nodes), [nodes]);
   
   return (
