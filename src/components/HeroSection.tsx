@@ -1,5 +1,5 @@
 import { motion, useScroll, useTransform } from 'framer-motion';
-import { useState, useRef, useMemo } from 'react';
+import { useState, useRef, useMemo, useEffect } from 'react';
 
 // Import tool icons
 import claudeIcon from '@/assets/icons/claude.svg';
@@ -27,67 +27,101 @@ const baseIcons = [
   { src: huggingfaceIcon, alt: 'HuggingFace' },
 ];
 
-interface FloatingParticle {
+interface ConstellationNode {
   id: number;
   icon: { src: string; alt: string };
   x: number;
   y: number;
   size: number;
   opacity: number;
-  duration: number;
-  delay: number;
-  xDrift: number;
-  yDrift: number;
+  pulseDelay: number;
+  driftX: number;
+  driftY: number;
+  driftDuration: number;
 }
 
-function generateParticles(count: number): FloatingParticle[] {
-  const particles: FloatingParticle[] = [];
+interface ConstellationLine {
+  id: string;
+  from: number;
+  to: number;
+}
+
+function generateConstellationNodes(count: number): ConstellationNode[] {
+  const nodes: ConstellationNode[] = [];
+  // Create a grid-like distribution with some randomness
+  const cols = 6;
+  const rows = Math.ceil(count / cols);
+  
   for (let i = 0; i < count; i++) {
-    particles.push({
+    const col = i % cols;
+    const row = Math.floor(i / cols);
+    const baseX = (col / (cols - 1)) * 100;
+    const baseY = (row / (rows - 1)) * 100;
+    
+    nodes.push({
       id: i,
       icon: baseIcons[i % baseIcons.length],
-      x: Math.random() * 100,
-      y: Math.random() * 100,
-      size: 32 + Math.random() * 24, // 32-56px
-      opacity: 0.15 + Math.random() * 0.35, // 0.15-0.5
-      duration: 15 + Math.random() * 20, // 15-35s
-      delay: Math.random() * -20,
-      xDrift: 30 + Math.random() * 60, // Horizontal drift amount
-      yDrift: 20 + Math.random() * 40, // Vertical drift amount
+      x: baseX + (Math.random() - 0.5) * 20, // Add randomness
+      y: baseY + (Math.random() - 0.5) * 15,
+      size: 36 + Math.random() * 20,
+      opacity: 0.4 + Math.random() * 0.4,
+      pulseDelay: Math.random() * 3,
+      driftX: (Math.random() - 0.5) * 40,
+      driftY: (Math.random() - 0.5) * 30,
+      driftDuration: 10 + Math.random() * 15,
     });
   }
-  return particles;
+  return nodes;
 }
 
-function FloatingParticleIcon({ particle }: { particle: FloatingParticle }) {
+function generateConstellationLines(nodes: ConstellationNode[]): ConstellationLine[] {
+  const lines: ConstellationLine[] = [];
+  const maxDistance = 35; // Max distance to connect
+  
+  for (let i = 0; i < nodes.length; i++) {
+    for (let j = i + 1; j < nodes.length; j++) {
+      const dx = nodes[i].x - nodes[j].x;
+      const dy = nodes[i].y - nodes[j].y;
+      const distance = Math.sqrt(dx * dx + dy * dy);
+      
+      if (distance < maxDistance && Math.random() > 0.3) {
+        lines.push({
+          id: `${i}-${j}`,
+          from: i,
+          to: j,
+        });
+      }
+    }
+  }
+  return lines;
+}
+
+function ConstellationIcon({ node, animatedPos }: { node: ConstellationNode; animatedPos: { x: number; y: number } }) {
   return (
     <motion.div
       className="absolute pointer-events-none"
       style={{
-        left: `${particle.x}%`,
-        top: `${particle.y}%`,
-        width: particle.size,
-        height: particle.size,
-        opacity: particle.opacity,
+        left: `${animatedPos.x}%`,
+        top: `${animatedPos.y}%`,
+        width: node.size,
+        height: node.size,
+        transform: 'translate(-50%, -50%)',
       }}
       animate={{
-        x: [0, particle.xDrift, 0, -particle.xDrift, 0],
-        y: [0, -particle.yDrift, 0, particle.yDrift, 0],
-        rotate: [0, 5, 0, -5, 0],
+        scale: [1, 1.15, 1],
+        opacity: [node.opacity, node.opacity + 0.2, node.opacity],
       }}
       transition={{
-        duration: particle.duration,
+        duration: 3,
         repeat: Infinity,
         ease: "easeInOut",
-        delay: particle.delay,
+        delay: node.pulseDelay,
       }}
     >
-      <div
-        className="w-full h-full bg-background/80 border-[2px] border-foreground/30 rounded-lg flex items-center justify-center backdrop-blur-sm"
-      >
+      <div className="w-full h-full bg-background/70 border-[2px] border-primary/40 rounded-lg flex items-center justify-center backdrop-blur-sm shadow-lg shadow-primary/10">
         <img 
-          src={particle.icon.src} 
-          alt={particle.icon.alt} 
+          src={node.icon.src} 
+          alt={node.icon.alt} 
           className="w-1/2 h-1/2 object-contain" 
         />
       </div>
@@ -95,13 +129,67 @@ function FloatingParticleIcon({ particle }: { particle: FloatingParticle }) {
   );
 }
 
-function FloatingParticleField() {
-  const particles = useMemo(() => generateParticles(30), []); // 30 floating particles
+function ConstellationField() {
+  const nodes = useMemo(() => generateConstellationNodes(24), []);
+  const lines = useMemo(() => generateConstellationLines(nodes), [nodes]);
+  const [time, setTime] = useState(0);
+  
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setTime(t => t + 0.016); // ~60fps
+    }, 16);
+    return () => clearInterval(interval);
+  }, []);
+  
+  // Calculate animated positions
+  const animatedPositions = useMemo(() => {
+    return nodes.map(node => ({
+      x: node.x + Math.sin(time / node.driftDuration * Math.PI * 2) * node.driftX * 0.3,
+      y: node.y + Math.cos(time / node.driftDuration * Math.PI * 2) * node.driftY * 0.3,
+    }));
+  }, [nodes, time]);
   
   return (
     <div className="absolute inset-0 overflow-hidden">
-      {particles.map((particle) => (
-        <FloatingParticleIcon key={particle.id} particle={particle} />
+      {/* Connecting Lines */}
+      <svg className="absolute inset-0 w-full h-full">
+        {lines.map((line, index) => {
+          const fromPos = animatedPositions[line.from];
+          const toPos = animatedPositions[line.to];
+          const pulseOffset = (time * 0.5 + index * 0.2) % 1;
+          
+          return (
+            <g key={line.id}>
+              {/* Base line */}
+              <line
+                x1={`${fromPos.x}%`}
+                y1={`${fromPos.y}%`}
+                x2={`${toPos.x}%`}
+                y2={`${toPos.y}%`}
+                stroke="hsl(var(--primary))"
+                strokeWidth="1"
+                strokeOpacity="0.15"
+              />
+              {/* Animated pulse */}
+              <circle
+                cx={`${fromPos.x + (toPos.x - fromPos.x) * pulseOffset}%`}
+                cy={`${fromPos.y + (toPos.y - fromPos.y) * pulseOffset}%`}
+                r="2"
+                fill="hsl(var(--primary))"
+                opacity={0.6 * (1 - Math.abs(pulseOffset - 0.5) * 2)}
+              />
+            </g>
+          );
+        })}
+      </svg>
+      
+      {/* Icons */}
+      {nodes.map((node, index) => (
+        <ConstellationIcon 
+          key={node.id} 
+          node={node} 
+          animatedPos={animatedPositions[index]}
+        />
       ))}
     </div>
   );
@@ -109,8 +197,14 @@ function FloatingParticleField() {
 
 export default function HeroSection() {
   const [isHoveringBuilders, setIsHoveringBuilders] = useState(false);
+  const [isHoveringProblem, setIsHoveringProblem] = useState(false);
+  const [isHoveringFigure, setIsHoveringFigure] = useState(false);
   const [mouseX, setMouseX] = useState(0);
+  const [problemMouseX, setProblemMouseX] = useState(0);
+  const [figureMouseX, setFigureMouseX] = useState(0);
   const buildersRef = useRef<HTMLSpanElement>(null);
+  const problemRef = useRef<HTMLSpanElement>(null);
+  const figureRef = useRef<HTMLSpanElement>(null);
   const sectionRef = useRef<HTMLElement>(null);
   
   // Parallax effect
@@ -121,12 +215,12 @@ export default function HeroSection() {
   
   const orbitY = useTransform(scrollYProgress, [0, 1], [0, 150]);
 
-  const handleMouseMove = (e: React.MouseEvent) => {
-    if (buildersRef.current) {
-      const rect = buildersRef.current.getBoundingClientRect();
+  const handleMouseMove = (e: React.MouseEvent, ref: React.RefObject<HTMLSpanElement>, setMouse: (x: number) => void) => {
+    if (ref.current) {
+      const rect = ref.current.getBoundingClientRect();
       const relativeX = e.clientX - rect.left;
       const centerX = rect.width / 2;
-      setMouseX(relativeX - centerX);
+      setMouse(relativeX - centerX);
     }
   };
 
@@ -160,12 +254,12 @@ export default function HeroSection() {
         />
       </div>
       
-      {/* Floating Particle Field - covers entire background with parallax */}
+      {/* Constellation Field - covers entire background with parallax */}
       <motion.div 
         className="absolute inset-0 z-[1] pointer-events-none"
         style={{ y: orbitY }}
       >
-        <FloatingParticleField />
+        <ConstellationField />
       </motion.div>
       
       {/* Content */}
@@ -186,7 +280,7 @@ export default function HeroSection() {
                 className="relative inline-block cursor-pointer"
                 onMouseEnter={() => setIsHoveringBuilders(true)}
                 onMouseLeave={() => setIsHoveringBuilders(false)}
-                onMouseMove={handleMouseMove}
+                onMouseMove={(e) => handleMouseMove(e, buildersRef, setMouseX)}
               >
                 <span className="bg-accent text-accent-foreground px-3 py-1 inline-block transform -rotate-1">
                   Builders
@@ -226,11 +320,85 @@ export default function HeroSection() {
             transition={{ duration: 0.6, delay: 0.2 }}
             className="relative"
           >
-            <p className="text-lg sm:text-xl md:text-2xl text-muted-foreground max-w-3xl mx-auto mb-10">
+            <p className="text-lg sm:text-xl md:text-2xl text-muted-foreground max-w-3xl mx-auto mb-4">
               <span className="bg-background/80 px-4 py-2 inline-block backdrop-blur-sm border-[2px] border-foreground/10">
-                We ship real systems that create real value. No corporate speak, no endless meetings.
+                We ship real systems that create value. No corporate speak, no endless meetings.
                 <br />
-                <span className="text-foreground font-semibold">Just pure execution and problem solving.</span>
+                <span className="text-foreground font-semibold">
+                  Just pure execution and{' '}
+                  <span 
+                    ref={problemRef}
+                    className="relative inline-block cursor-pointer underline decoration-primary decoration-2 underline-offset-4"
+                    onMouseEnter={() => setIsHoveringProblem(true)}
+                    onMouseLeave={() => setIsHoveringProblem(false)}
+                    onMouseMove={(e) => handleMouseMove(e, problemRef, setProblemMouseX)}
+                  >
+                    problem-solving
+                    {isHoveringProblem && (
+                      <motion.div
+                        initial={{ opacity: 0, scale: 0.8, y: 10 }}
+                        animate={{ 
+                          opacity: 1, 
+                          scale: 1, 
+                          y: 0,
+                          x: problemMouseX * 0.3 
+                        }}
+                        transition={{ 
+                          opacity: { duration: 0.2 },
+                          scale: { duration: 0.2 },
+                          x: { duration: 0.1, ease: "easeOut" }
+                        }}
+                        className="absolute -top-36 left-1/2 -translate-x-1/2 z-50 pointer-events-none"
+                      >
+                        <img 
+                          src="https://media.giphy.com/media/l4FGni1RBAR2OWsGk/giphy.gif" 
+                          alt="Fire" 
+                          className="w-32 h-28 object-cover border-[3px] border-foreground rounded-sm"
+                        />
+                      </motion.div>
+                    )}
+                  </span>
+                  .
+                </span>
+              </span>
+            </p>
+            
+            {/* New subheadline */}
+            <p className="text-base sm:text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto mb-10">
+              <span className="italic">
+                We may not be the experts, but we know one thing —{' '}
+                <span 
+                  ref={figureRef}
+                  className="relative inline-block cursor-pointer text-foreground font-semibold not-italic underline decoration-accent decoration-2 underline-offset-4"
+                  onMouseEnter={() => setIsHoveringFigure(true)}
+                  onMouseLeave={() => setIsHoveringFigure(false)}
+                  onMouseMove={(e) => handleMouseMove(e, figureRef, setFigureMouseX)}
+                >
+                  how to figure it out
+                  {isHoveringFigure && (
+                    <motion.div
+                      initial={{ opacity: 0, scale: 0.8, y: 10 }}
+                      animate={{ 
+                        opacity: 1, 
+                        scale: 1, 
+                        y: 0,
+                        x: figureMouseX * 0.3 
+                      }}
+                      transition={{ 
+                        opacity: { duration: 0.2 },
+                        scale: { duration: 0.2 },
+                        x: { duration: 0.1, ease: "easeOut" }
+                      }}
+                      className="absolute -top-36 left-1/2 -translate-x-1/2 z-50 pointer-events-none"
+                    >
+                      <img 
+                        src="https://media.giphy.com/media/d3mlE7uhX8KFgEmY/giphy.gif" 
+                        alt="Thinking" 
+                        className="w-32 h-28 object-cover border-[3px] border-foreground rounded-sm"
+                      />
+                    </motion.div>
+                  )}
+                </span>
               </span>
             </p>
           </motion.div>

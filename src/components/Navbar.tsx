@@ -30,10 +30,10 @@ export default function Navbar() {
         <div className="container mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-16 md:h-20">
             {/* Logo */}
-            <a href="#" className="flex items-center gap-3 group shadow-sm rounded-sm opacity-100 border border-primary border-solid">
+            <a href="#" className="flex items-center gap-3 group">
               <img src={figoutLogo} alt="FigOut Labs" className="h-12 w-auto transition-transform group-hover:scale-110 duration-300" />
               <span className="font-bold text-xl tracking-tight hidden sm:block">
-                <span className="text-primary">FigOut</span>
+                <span className="text-[#3B82F6]">FigOut</span>
                 <span className="text-background"> Labs</span>
               </span>
             </a>
