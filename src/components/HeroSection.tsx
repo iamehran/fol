@@ -1,7 +1,10 @@
 import { motion } from 'framer-motion';
+import { useState } from 'react';
 import Scene3D from './Scene3D';
 
 export default function HeroSection() {
+  const [isHoveringBuilders, setIsHoveringBuilders] = useState(false);
+
   return (
     <section className="relative min-h-screen flex items-center justify-center overflow-hidden pt-20">
       {/* 3D Background */}
@@ -10,19 +13,6 @@ export default function HeroSection() {
       {/* Content */}
       <div className="relative z-10 container mx-auto px-4 sm:px-6 lg:px-8 pointer-events-auto">
         <div className="max-w-5xl mx-auto text-center">
-          {/* Badge */}
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5 }}
-            className="inline-block mb-6"
-          >
-            <span className="inline-flex items-center gap-2 px-4 py-2 border-[3px] border-foreground bg-primary text-primary-foreground font-bold text-sm uppercase tracking-wider shadow-brutal">
-              <span className="w-2 h-2 bg-accent animate-pulse" />
-              Now accepting projects
-            </span>
-          </motion.div>
-
           {/* Main Heading */}
           <motion.h1
             initial={{ opacity: 0, y: 30 }}
@@ -30,9 +20,34 @@ export default function HeroSection() {
             transition={{ duration: 0.6, delay: 0.1 }}
             className="text-5xl sm:text-6xl md:text-7xl lg:text-8xl font-bold leading-[0.9] mb-6 relative"
           >
-            <span className="block">We build</span>
-            <span className="block text-stroke">digital products</span>
-            <span className="block">that <span className="bg-accent text-accent-foreground px-3 py-1 inline-block transform -rotate-1 shadow-brutal">convert</span></span>
+            <span className="block">Not an Agency.</span>
+            <span className="block">
+              We Are{' '}
+              <span 
+                className="relative inline-block cursor-pointer"
+                onMouseEnter={() => setIsHoveringBuilders(true)}
+                onMouseLeave={() => setIsHoveringBuilders(false)}
+              >
+                <span className="bg-accent text-accent-foreground px-3 py-1 inline-block transform -rotate-1 shadow-brutal">
+                  Builders
+                </span>
+                {/* Cat typing gif on hover */}
+                {isHoveringBuilders && (
+                  <motion.div
+                    initial={{ opacity: 0, scale: 0.8, y: 10 }}
+                    animate={{ opacity: 1, scale: 1, y: 0 }}
+                    exit={{ opacity: 0, scale: 0.8 }}
+                    className="absolute -top-32 left-1/2 -translate-x-1/2 z-50"
+                  >
+                    <img 
+                      src="https://media.giphy.com/media/JIX9t2j0ZTN9S/giphy.gif" 
+                      alt="Cat typing" 
+                      className="w-32 h-24 object-cover border-[3px] border-foreground shadow-brutal rounded-sm"
+                    />
+                  </motion.div>
+                )}
+              </span>
+            </span>
           </motion.h1>
 
           {/* Subheading */}
@@ -42,11 +57,11 @@ export default function HeroSection() {
             transition={{ duration: 0.6, delay: 0.2 }}
             className="relative"
           >
-            <p className="text-lg sm:text-xl md:text-2xl text-muted-foreground max-w-2xl mx-auto mb-10">
+            <p className="text-lg sm:text-xl md:text-2xl text-muted-foreground max-w-3xl mx-auto mb-10">
               <span className="bg-background/80 px-4 py-2 inline-block backdrop-blur-sm border-[2px] border-foreground/10">
-                Sharp design. Clean code. Real results.
+                We ship real systems that create real value. No corporate speak, no endless meetings.
                 <br />
-                <span className="text-foreground font-semibold">No fluff. Just execution.</span>
+                <span className="text-foreground font-semibold">Just pure execution and problem solving.</span>
               </span>
             </p>
           </motion.div>
@@ -75,29 +90,6 @@ export default function HeroSection() {
           </motion.div>
         </div>
       </div>
-      
-      {/* Scroll indicator - positioned at bottom of section */}
-      <motion.div
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ duration: 0.6, delay: 0.8 }}
-        className="absolute bottom-8 left-1/2 -translate-x-1/2 z-20"
-      >
-        <motion.div
-          animate={{ y: [0, 10, 0] }}
-          transition={{ duration: 1.5, repeat: Infinity }}
-          className="flex flex-col items-center gap-2"
-        >
-          <span className="text-xs uppercase tracking-widest text-muted-foreground">Scroll</span>
-          <div className="w-6 h-10 border-[3px] border-foreground bg-background/80 rounded-full flex items-start justify-center p-1">
-            <motion.div
-              animate={{ y: [0, 12, 0] }}
-              transition={{ duration: 1.5, repeat: Infinity }}
-              className="w-2 h-2 bg-foreground rounded-full"
-            />
-          </div>
-        </motion.div>
-      </motion.div>
     </section>
   );
 }
