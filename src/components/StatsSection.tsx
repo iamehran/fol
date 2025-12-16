@@ -1,15 +1,15 @@
 import { motion } from 'framer-motion';
 
 const stats = [
-  { value: '50+', label: 'Projects Shipped', accent: 'bg-primary' },
-  { value: '3x', label: 'Avg. Conversion Lift', accent: 'bg-accent' },
-  { value: '<2wk', label: 'Time to Launch', accent: 'bg-highlight' },
-  { value: '100%', label: 'Client Retention', accent: 'bg-primary' },
+  { value: '100+', label: 'Automations Built', accent: 'bg-primary' },
+  { value: '50+', label: 'Happy Clients', accent: 'bg-accent' },
+  { value: '10k+', label: 'Hours Saved', accent: 'bg-highlight' },
+  { value: '∞', label: 'Problems Solved', accent: 'bg-primary' },
 ];
 
 export default function StatsSection() {
   return (
-    <section className="py-16 md:py-24 border-y-[3px] border-foreground bg-secondary">
+    <section className="py-16 md:py-24 border-y-[3px] border-foreground bg-background">
       <div className="container mx-auto px-4 sm:px-6 lg:px-8">
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-6 md:gap-8">
           {stats.map((stat, index) => (

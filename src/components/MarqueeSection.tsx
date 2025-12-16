@@ -7,15 +7,7 @@ const words = [
   '●',
   'DEPLOY',
   '●',
-  'DOMINATE',
-  '●',
-  'DESIGN',
-  '●',
-  'DEVELOP',
-  '●',
-  'DEPLOY',
-  '●',
-  'DOMINATE',
+  'AUTOMATE',
   '●',
 ];
 
@@ -25,17 +17,17 @@ export default function MarqueeSection() {
       <div className="flex">
         <motion.div
           className="flex gap-8 whitespace-nowrap"
-          animate={{ x: [0, -1920] }}
+          animate={{ x: [0, -960] }}
           transition={{
             x: {
               repeat: Infinity,
               repeatType: "loop",
-              duration: 20,
+              duration: 15,
               ease: "linear",
             },
           }}
         >
-          {[...words, ...words].map((word, index) => (
+          {[...words, ...words, ...words, ...words].map((word, index) => (
             <span
               key={index}
               className="text-4xl md:text-5xl font-bold uppercase tracking-tight"

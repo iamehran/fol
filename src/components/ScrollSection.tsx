@@ -4,26 +4,26 @@ import { useRef } from 'react';
 const features = [
   {
     number: '01',
-    title: 'Strategy',
-    description: 'We dive deep into your problem space. No assumptions. Just sharp analysis and a clear roadmap.',
+    title: 'Discovery',
+    description: 'We dig into your problem. Understand your workflow, identify bottlenecks, map out opportunities.',
     accent: 'bg-primary',
   },
   {
     number: '02',
-    title: 'Design',
-    description: 'Interfaces that stop thumbs and start conversations. Beautiful, functional, unforgettable.',
+    title: 'Strategy',
+    description: 'No fluff. We build a clear roadmap with the right tools - n8n, Zapier, Make, or custom solutions.',
     accent: 'bg-accent',
   },
   {
     number: '03',
-    title: 'Development',
-    description: 'Clean code that scales. Fast, secure, and built to last. No technical debt. No shortcuts.',
+    title: 'Build',
+    description: 'We ship fast. Clean automations, production-ready code, systems that actually work.',
     accent: 'bg-highlight',
   },
   {
     number: '04',
-    title: 'Launch',
-    description: 'Ship fast, iterate faster. We get you live and optimize in real-time. Results speak.',
+    title: 'Optimize',
+    description: 'Launch is just the start. We monitor, tweak, and scale until the results speak for themselves.',
     accent: 'bg-primary',
   },
 ];
@@ -32,36 +32,33 @@ function FeatureCard({ feature, index }: { feature: typeof features[0]; index: n
   const ref = useRef<HTMLDivElement>(null);
   const { scrollYProgress } = useScroll({
     target: ref,
-    offset: ["start end", "end start"]
+    offset: ["start end", "center center"]
   });
 
-  const y = useTransform(scrollYProgress, [0, 1], [100, -100]);
-  const opacity = useTransform(scrollYProgress, [0, 0.2, 0.8, 1], [0, 1, 1, 0]);
-  const x = useTransform(
-    scrollYProgress,
-    [0, 0.5],
-    [index % 2 === 0 ? -100 : 100, 0]
-  );
+  const opacity = useTransform(scrollYProgress, [0, 0.5], [0.3, 1]);
+  const scale = useTransform(scrollYProgress, [0, 0.5], [0.95, 1]);
 
   return (
     <motion.div
       ref={ref}
-      style={{ y, opacity, x }}
-      className="flex flex-col md:flex-row items-center gap-8 md:gap-16"
+      style={{ opacity, scale }}
+      className={`relative flex flex-col md:flex-row items-start gap-6 md:gap-10 p-6 md:p-8 bg-background border-[3px] border-foreground shadow-brutal ${
+        index % 2 === 1 ? 'md:ml-auto' : ''
+      }`}
     >
       {/* Number */}
-      <div className={`shrink-0 w-24 h-24 md:w-32 md:h-32 ${feature.accent} border-[3px] border-foreground shadow-brutal-lg flex items-center justify-center`}>
-        <span className="text-4xl md:text-5xl font-bold text-primary-foreground">
+      <div className={`shrink-0 w-20 h-20 ${feature.accent} border-[3px] border-foreground shadow-brutal flex items-center justify-center`}>
+        <span className="text-3xl font-bold text-primary-foreground">
           {feature.number}
         </span>
       </div>
 
       {/* Content */}
-      <div className="flex-1 text-center md:text-left">
-        <h3 className="text-3xl md:text-4xl lg:text-5xl font-bold mb-4">
+      <div className="flex-1">
+        <h3 className="text-2xl md:text-3xl lg:text-4xl font-bold mb-3">
           {feature.title}
         </h3>
-        <p className="text-lg md:text-xl text-muted-foreground max-w-lg">
+        <p className="text-base md:text-lg text-muted-foreground max-w-md">
           {feature.description}
         </p>
       </div>
@@ -76,7 +73,7 @@ export default function ScrollSection() {
     offset: ["start end", "end start"]
   });
 
-  const lineHeight = useTransform(scrollYProgress, [0, 1], ["0%", "100%"]);
+  const lineHeight = useTransform(scrollYProgress, [0.1, 0.9], ["0%", "100%"]);
 
   return (
     <section ref={containerRef} className="py-24 md:py-32 relative overflow-hidden">
@@ -87,7 +84,7 @@ export default function ScrollSection() {
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true, margin: "-100px" }}
           transition={{ duration: 0.6 }}
-          className="text-center mb-20"
+          className="text-center mb-16 md:mb-20"
         >
           <span className="inline-block px-4 py-2 border-[3px] border-foreground bg-secondary text-foreground font-bold text-sm uppercase tracking-wider shadow-brutal mb-6">
             How we work
@@ -98,8 +95,8 @@ export default function ScrollSection() {
           </h2>
         </motion.div>
 
-        {/* Progress Line */}
-        <div className="absolute left-1/2 top-48 bottom-24 w-1 bg-muted hidden md:block">
+        {/* Progress Line - Hidden on mobile, shown on md+ */}
+        <div className="absolute left-8 md:left-1/2 md:-translate-x-px top-64 bottom-32 w-1 bg-muted hidden md:block">
           <motion.div
             className="w-full bg-foreground origin-top"
             style={{ height: lineHeight }}
@@ -107,7 +104,7 @@ export default function ScrollSection() {
         </div>
 
         {/* Features */}
-        <div className="space-y-24 md:space-y-32 relative">
+        <div className="space-y-8 md:space-y-12 max-w-2xl mx-auto relative">
           {features.map((feature, index) => (
             <FeatureCard key={feature.number} feature={feature} index={index} />
           ))}
