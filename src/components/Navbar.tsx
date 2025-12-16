@@ -47,7 +47,7 @@ export default function Navbar() {
                 className="h-12 w-auto transition-transform group-hover:scale-110 duration-300"
               />
               <span className="font-bold text-xl tracking-tight hidden sm:block">
-                <span className="text-primary">FigOut</span>
+                <span className="text-background">FigOut</span>
                 <span className="text-background"> Labs</span>
               </span>
             </a>
@@ -58,6 +58,10 @@ export default function Navbar() {
                 <a
                   key={link.href}
                   href={link.href}
+                  onClick={(e) => {
+                    e.preventDefault();
+                    document.querySelector(link.href)?.scrollIntoView({ behavior: 'smooth' });
+                  }}
                   className="text-background/80 hover:text-background text-sm font-medium transition-colors duration-200"
                 >
                   {link.label}
@@ -103,7 +107,11 @@ export default function Navbar() {
               <a
                 key={link.href}
                 href={link.href}
-                onClick={() => setIsOpen(false)}
+                onClick={(e) => {
+                  e.preventDefault();
+                  setIsOpen(false);
+                  document.querySelector(link.href)?.scrollIntoView({ behavior: 'smooth' });
+                }}
                 className="text-foreground/80 hover:text-foreground text-base font-medium transition-colors"
               >
                 {link.label}
