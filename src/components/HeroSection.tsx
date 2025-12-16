@@ -1,8 +1,5 @@
-import { motion } from 'framer-motion';
+import { motion, useScroll, useTransform } from 'framer-motion';
 import { useState, useRef } from 'react';
-
-// Import logo
-import figoutLogo from '@/assets/figout-logo-new.png';
 
 // Import tool icons
 import claudeIcon from '@/assets/icons/claude.svg';
@@ -97,6 +94,16 @@ export default function HeroSection() {
   const [isHoveringBuilders, setIsHoveringBuilders] = useState(false);
   const [mouseX, setMouseX] = useState(0);
   const buildersRef = useRef<HTMLSpanElement>(null);
+  const sectionRef = useRef<HTMLElement>(null);
+  
+  // Parallax effect
+  const { scrollYProgress } = useScroll({
+    target: sectionRef,
+    offset: ["start start", "end start"]
+  });
+  
+  const orbitY = useTransform(scrollYProgress, [0, 1], [0, 150]);
+  const orbitRotate = useTransform(scrollYProgress, [0, 1], [0, 45]);
 
   const handleMouseMove = (e: React.MouseEvent) => {
     if (buildersRef.current) {
@@ -108,7 +115,7 @@ export default function HeroSection() {
   };
 
   return (
-    <section className="relative min-h-screen flex items-center justify-center overflow-hidden pt-20 bg-background">
+    <section ref={sectionRef} className="relative min-h-screen flex items-center justify-center overflow-hidden pt-20 bg-background">
       {/* Creative Background */}
       <div className="absolute inset-0 z-0">
         {/* Gradient mesh */}
@@ -137,32 +144,21 @@ export default function HeroSection() {
         />
       </div>
       
-      {/* Single Orbiting Ring - around entire content */}
-      <div className="absolute inset-0 flex items-center justify-center z-5 pointer-events-none">
+      {/* Single Orbiting Ring - behind text with parallax */}
+      <motion.div 
+        className="absolute inset-0 flex items-center justify-center z-[1] pointer-events-none"
+        style={{ y: orbitY, rotate: orbitRotate }}
+      >
         <OrbitRing
           icons={orbitIcons}
-          radius={480}
-          duration={45}
+          radius={320}
+          duration={40}
         />
-      </div>
+      </motion.div>
       
       {/* Content */}
       <div className="relative z-10 container mx-auto px-4 sm:px-6 lg:px-8">
         <div className="max-w-4xl mx-auto text-center">
-          {/* Logo above headline */}
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5 }}
-            className="mb-8 flex justify-center"
-          >
-            <img 
-              src={figoutLogo} 
-              alt="FigOut Labs" 
-              className="h-20 md:h-28 w-auto object-contain"
-            />
-          </motion.div>
-
           {/* Main Heading */}
           <motion.h1
             initial={{ opacity: 0, y: 30 }}
