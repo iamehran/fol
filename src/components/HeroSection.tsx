@@ -1,14 +1,26 @@
 import { motion } from 'framer-motion';
-import { useState } from 'react';
-import Scene3D from './Scene3D';
+import { useState, Suspense, lazy } from 'react';
+
+const Spline = lazy(() => import('@splinetool/react-spline'));
 
 export default function HeroSection() {
   const [isHoveringBuilders, setIsHoveringBuilders] = useState(false);
 
   return (
     <section className="relative min-h-screen flex items-center justify-center overflow-hidden pt-20">
-      {/* 3D Background */}
-      <Scene3D />
+      {/* Spline 3D Background */}
+      <div className="absolute inset-0 z-0">
+        <Suspense fallback={
+          <div className="w-full h-full bg-background flex items-center justify-center">
+            <div className="w-16 h-16 border-4 border-foreground border-t-transparent rounded-full animate-spin" />
+          </div>
+        }>
+          <Spline
+            scene="https://prod.spline.design/jxJSFOOO1mYBTmBT/scene.splinecode"
+            className="w-full h-full"
+          />
+        </Suspense>
+      </div>
       
       {/* Content */}
       <div className="relative z-10 container mx-auto px-4 sm:px-6 lg:px-8 pointer-events-auto">

@@ -4,6 +4,7 @@ import MarqueeSection from '@/components/MarqueeSection';
 import ScrollSection from '@/components/ScrollSection';
 import StatsSection from '@/components/StatsSection';
 import ServicesSection from '@/components/ServicesSection';
+import TestimonialsSection from '@/components/TestimonialsSection';
 import CTASection from '@/components/CTASection';
 import Footer from '@/components/Footer';
 
@@ -13,9 +14,10 @@ const Index = () => {
       <Navbar />
       <HeroSection />
       <MarqueeSection />
-      <ScrollSection />
       <StatsSection />
       <ServicesSection />
+      <ScrollSection />
+      <TestimonialsSection />
       <CTASection />
       <Footer />
     </main>
