@@ -1,5 +1,5 @@
 import { motion, useScroll, useTransform } from 'framer-motion';
-import { useState, useRef } from 'react';
+import { useState, useRef, useMemo } from 'react';
 
 // Import tool icons
 import claudeIcon from '@/assets/icons/claude.svg';
@@ -13,8 +13,8 @@ import langchainIcon from '@/assets/icons/langchain.svg';
 import huggingfaceIcon from '@/assets/icons/huggingface.svg';
 import lovableIcon from '@/assets/icons/lovable.svg';
 
-// Icons for wave animation
-const waveIcons = [
+// Base icons
+const baseIcons = [
   { src: claudeIcon, alt: 'Claude' },
   { src: makeIcon, alt: 'Make' },
   { src: openaiIcon, alt: 'OpenAI' },
@@ -27,69 +27,83 @@ const waveIcons = [
   { src: huggingfaceIcon, alt: 'HuggingFace' },
 ];
 
-interface WaveIconProps {
+interface FloatingParticle {
+  id: number;
   icon: { src: string; alt: string };
-  index: number;
-  total: number;
+  x: number;
+  y: number;
+  size: number;
+  opacity: number;
+  duration: number;
+  delay: number;
+  xDrift: number;
+  yDrift: number;
 }
 
-function WaveIcon({ icon, index, total }: WaveIconProps) {
-  // Position icons in a horizontal spread
-  const xPosition = (index / (total - 1)) * 100; // 0% to 100%
-  const yOffset = index % 2 === 0 ? -30 : 30; // Alternating vertical offset
+function generateParticles(count: number): FloatingParticle[] {
+  const particles: FloatingParticle[] = [];
+  for (let i = 0; i < count; i++) {
+    particles.push({
+      id: i,
+      icon: baseIcons[i % baseIcons.length],
+      x: Math.random() * 100,
+      y: Math.random() * 100,
+      size: 32 + Math.random() * 24, // 32-56px
+      opacity: 0.15 + Math.random() * 0.35, // 0.15-0.5
+      duration: 15 + Math.random() * 20, // 15-35s
+      delay: Math.random() * -20,
+      xDrift: 30 + Math.random() * 60, // Horizontal drift amount
+      yDrift: 20 + Math.random() * 40, // Vertical drift amount
+    });
+  }
+  return particles;
+}
 
+function FloatingParticleIcon({ particle }: { particle: FloatingParticle }) {
   return (
     <motion.div
-      className="absolute w-11 h-11 md:w-14 md:h-14 pointer-events-auto"
+      className="absolute pointer-events-none"
       style={{
-        left: `${xPosition}%`,
-        top: '50%',
-        transform: 'translate(-50%, -50%)',
+        left: `${particle.x}%`,
+        top: `${particle.y}%`,
+        width: particle.size,
+        height: particle.size,
+        opacity: particle.opacity,
       }}
       animate={{
-        x: [0, 80, 0, -80, 0],
-        y: [yOffset, -yOffset, yOffset, -yOffset, yOffset],
+        x: [0, particle.xDrift, 0, -particle.xDrift, 0],
+        y: [0, -particle.yDrift, 0, particle.yDrift, 0],
+        rotate: [0, 5, 0, -5, 0],
       }}
       transition={{
-        duration: 6,
+        duration: particle.duration,
         repeat: Infinity,
         ease: "easeInOut",
-        delay: index * 0.2,
+        delay: particle.delay,
       }}
-      whileHover={{ scale: 1.15 }}
     >
       <div
-        className="w-11 h-11 md:w-14 md:h-14 bg-background border-[3px] border-foreground rounded-xl flex items-center justify-center"
-        style={{ boxShadow: 'var(--shadow-brutal)' }}
+        className="w-full h-full bg-background/80 border-[2px] border-foreground/30 rounded-lg flex items-center justify-center backdrop-blur-sm"
       >
-        <img src={icon.src} alt={icon.alt} className="w-6 h-6 md:w-8 md:h-8" />
+        <img 
+          src={particle.icon.src} 
+          alt={particle.icon.alt} 
+          className="w-1/2 h-1/2 object-contain" 
+        />
       </div>
     </motion.div>
   );
 }
 
-function WaveAnimation({ icons }: { icons: typeof waveIcons }) {
+function FloatingParticleField() {
+  const particles = useMemo(() => generateParticles(30), []); // 30 floating particles
+  
   return (
-    <motion.div 
-      className="absolute inset-0"
-      animate={{
-        x: [0, 100, 0, -100, 0],
-      }}
-      transition={{
-        duration: 12,
-        repeat: Infinity,
-        ease: "easeInOut",
-      }}
-    >
-      {icons.map((icon, index) => (
-        <WaveIcon
-          key={icon.alt}
-          icon={icon}
-          index={index}
-          total={icons.length}
-        />
+    <div className="absolute inset-0 overflow-hidden">
+      {particles.map((particle) => (
+        <FloatingParticleIcon key={particle.id} particle={particle} />
       ))}
-    </motion.div>
+    </div>
   );
 }
 
@@ -146,12 +160,12 @@ export default function HeroSection() {
         />
       </div>
       
-      {/* Wave Animation - behind text with parallax */}
+      {/* Floating Particle Field - covers entire background with parallax */}
       <motion.div 
-        className="absolute inset-x-8 md:inset-x-16 lg:inset-x-24 top-1/2 -translate-y-1/2 h-64 z-[1] pointer-events-none"
+        className="absolute inset-0 z-[1] pointer-events-none"
         style={{ y: orbitY }}
       >
-        <WaveAnimation icons={waveIcons} />
+        <FloatingParticleField />
       </motion.div>
       
       {/* Content */}
