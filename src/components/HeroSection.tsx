@@ -34,53 +34,45 @@ export default function HeroSection() {
       </div>
       
       {/* Orbiting Icons */}
-      <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-        <div className="relative w-[600px] h-[600px] md:w-[800px] md:h-[800px]">
+      <div className="absolute inset-0 flex items-center justify-center pointer-events-none z-[5]">
+        <motion.div 
+          className="relative"
+          animate={{ rotate: 360 }}
+          transition={{
+            duration: 40,
+            repeat: Infinity,
+            ease: "linear",
+          }}
+        >
           {orbitIcons.map((icon, index) => {
             const angle = (index / orbitIcons.length) * 360;
+            const radius = 420; // Larger orbit radius to avoid text overlap
+            const x = Math.cos((angle * Math.PI) / 180) * radius;
+            const y = Math.sin((angle * Math.PI) / 180) * radius;
+            
             return (
               <motion.div
                 key={icon.alt}
-                className="absolute w-10 h-10 md:w-14 md:h-14"
+                className="absolute w-12 h-12 md:w-16 md:h-16"
                 style={{
-                  top: '50%',
-                  left: '50%',
+                  left: x,
+                  top: y,
+                  transform: 'translate(-50%, -50%)',
                 }}
-                animate={{
-                  rotate: [angle, angle + 360],
-                }}
+                animate={{ rotate: -360 }}
                 transition={{
-                  rotate: {
-                    duration: 30,
-                    repeat: Infinity,
-                    ease: "linear",
-                  },
+                  duration: 40,
+                  repeat: Infinity,
+                  ease: "linear",
                 }}
               >
-                <motion.div
-                  className="absolute"
-                  style={{
-                    transform: `translateX(250px) translateY(-50%) rotate(-${angle}deg)`,
-                  }}
-                  animate={{
-                    rotate: [-angle, -angle - 360],
-                  }}
-                  transition={{
-                    rotate: {
-                      duration: 30,
-                      repeat: Infinity,
-                      ease: "linear",
-                    },
-                  }}
-                >
-                  <div className="w-10 h-10 md:w-14 md:h-14 bg-background border-2 border-foreground/20 rounded-xl flex items-center justify-center opacity-60 hover:opacity-100 transition-opacity">
-                    <img src={icon.src} alt={icon.alt} className="w-6 h-6 md:w-8 md:h-8" />
-                  </div>
-                </motion.div>
+                <div className="w-12 h-12 md:w-16 md:h-16 bg-background border-[3px] border-foreground rounded-xl flex items-center justify-center shadow-brutal">
+                  <img src={icon.src} alt={icon.alt} className="w-7 h-7 md:w-9 md:h-9" />
+                </div>
               </motion.div>
             );
           })}
-        </div>
+        </motion.div>
       </div>
       
       {/* Content */}
