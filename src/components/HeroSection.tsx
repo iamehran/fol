@@ -13,8 +13,8 @@ import langchainIcon from '@/assets/icons/langchain.svg';
 import huggingfaceIcon from '@/assets/icons/huggingface.svg';
 import lovableIcon from '@/assets/icons/lovable.svg';
 
-// Single orbit with all icons
-const orbitIcons = [
+// Icons for wave animation
+const waveIcons = [
   { src: claudeIcon, alt: 'Claude' },
   { src: makeIcon, alt: 'Make' },
   { src: openaiIcon, alt: 'OpenAI' },
@@ -27,26 +27,36 @@ const orbitIcons = [
   { src: huggingfaceIcon, alt: 'HuggingFace' },
 ];
 
-interface OrbitIconProps {
+interface WaveIconProps {
   icon: { src: string; alt: string };
   index: number;
   total: number;
-  radius: number;
 }
 
-function OrbitIcon({ icon, index, total, radius }: OrbitIconProps) {
-  const angle = (index / total) * 360;
+function WaveIcon({ icon, index, total }: WaveIconProps) {
+  // Position icons in a horizontal spread
+  const xPosition = (index / (total - 1)) * 100; // 0% to 100%
+  const yOffset = index % 2 === 0 ? -30 : 30; // Alternating vertical offset
 
   return (
     <motion.div
       className="absolute w-11 h-11 md:w-14 md:h-14 pointer-events-auto"
       style={{
-        left: `calc(50% + ${Math.cos((angle * Math.PI) / 180) * radius}px)`,
-        top: `calc(50% + ${Math.sin((angle * Math.PI) / 180) * radius}px)`,
+        left: `${xPosition}%`,
+        top: '50%',
         transform: 'translate(-50%, -50%)',
       }}
+      animate={{
+        x: [0, 80, 0, -80, 0],
+        y: [yOffset, -yOffset, yOffset, -yOffset, yOffset],
+      }}
+      transition={{
+        duration: 6,
+        repeat: Infinity,
+        ease: "easeInOut",
+        delay: index * 0.2,
+      }}
       whileHover={{ scale: 1.15 }}
-      transition={{ scale: { duration: 0.2 } }}
     >
       <div
         className="w-11 h-11 md:w-14 md:h-14 bg-background border-[3px] border-foreground rounded-xl flex items-center justify-center"
@@ -58,32 +68,25 @@ function OrbitIcon({ icon, index, total, radius }: OrbitIconProps) {
   );
 }
 
-interface OrbitRingProps {
-  icons: typeof orbitIcons;
-  radius: number;
-  duration: number;
-}
-
-function OrbitRing({ icons, radius, duration }: OrbitRingProps) {
+function WaveAnimation({ icons }: { icons: typeof waveIcons }) {
   return (
     <motion.div 
       className="absolute inset-0"
-      animate={{ rotate: 360 }}
-      transition={{
-        duration: duration,
-        repeat: Infinity,
-        ease: "linear",
-        repeatType: "loop",
+      animate={{
+        x: [0, 100, 0, -100, 0],
       }}
-      style={{ willChange: 'transform' }}
+      transition={{
+        duration: 12,
+        repeat: Infinity,
+        ease: "easeInOut",
+      }}
     >
       {icons.map((icon, index) => (
-        <OrbitIcon
+        <WaveIcon
           key={icon.alt}
           icon={icon}
           index={index}
           total={icons.length}
-          radius={radius}
         />
       ))}
     </motion.div>
@@ -103,7 +106,6 @@ export default function HeroSection() {
   });
   
   const orbitY = useTransform(scrollYProgress, [0, 1], [0, 150]);
-  const orbitRotate = useTransform(scrollYProgress, [0, 1], [0, 45]);
 
   const handleMouseMove = (e: React.MouseEvent) => {
     if (buildersRef.current) {
@@ -144,16 +146,12 @@ export default function HeroSection() {
         />
       </div>
       
-      {/* Single Orbiting Ring - behind text with parallax */}
+      {/* Wave Animation - behind text with parallax */}
       <motion.div 
-        className="absolute inset-0 flex items-center justify-center z-[1] pointer-events-none"
-        style={{ y: orbitY, rotate: orbitRotate }}
+        className="absolute inset-x-8 md:inset-x-16 lg:inset-x-24 top-1/2 -translate-y-1/2 h-64 z-[1] pointer-events-none"
+        style={{ y: orbitY }}
       >
-        <OrbitRing
-          icons={orbitIcons}
-          radius={320}
-          duration={40}
-        />
+        <WaveAnimation icons={waveIcons} />
       </motion.div>
       
       {/* Content */}
