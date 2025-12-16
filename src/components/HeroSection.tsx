@@ -307,11 +307,10 @@ export default function HeroSection() {
   return (
     <section ref={sectionRef} className="relative min-h-screen flex items-center justify-center overflow-hidden pt-20 bg-background">
       {/* Background Lines Animation Layer */}
-      <div className="absolute inset-0 z-0">
-        <BackgroundLines svgOptions={{ duration: 12 }}>
-          <div />
-        </BackgroundLines>
-      </div>
+      <BackgroundLines 
+        className="absolute inset-0 z-0" 
+        svgOptions={{ duration: 8 }}
+      />
       
       {/* Creative Background */}
       <div className="absolute inset-0 z-[1]">

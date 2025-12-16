@@ -8,14 +8,14 @@ export const BackgroundLines = ({
   className,
   svgOptions,
 }: {
-  children: React.ReactNode;
+  children?: React.ReactNode;
   className?: string;
   svgOptions?: {
     duration?: number;
   };
 }) => {
   return (
-    <div className={cn("relative w-full h-full", className)}>
+    <div className={cn("absolute inset-0 w-full h-full overflow-hidden", className)}>
       <SVG svgOptions={svgOptions} />
       {children}
     </div>
@@ -63,27 +63,27 @@ const SVG = ({
   ];
 
   const colors = [
+    "#000000",
     "#1a1a1a",
-    "#2a2a2a",
-    "#3a3a3a",
+    "#000000",
     "#1a1a1a",
-    "#2a2a2a",
+    "#000000",
     "#1a1a1a",
-    "#3a3a3a",
-    "#2a2a2a",
+    "#000000",
     "#1a1a1a",
-    "#2a2a2a",
-    "#3a3a3a",
+    "#000000",
     "#1a1a1a",
-    "#2a2a2a",
-    "#3a3a3a",
+    "#000000",
     "#1a1a1a",
-    "#2a2a2a",
+    "#000000",
     "#1a1a1a",
-    "#3a3a3a",
-    "#2a2a2a",
+    "#000000",
     "#1a1a1a",
-    "#2a2a2a",
+    "#000000",
+    "#1a1a1a",
+    "#000000",
+    "#1a1a1a",
+    "#000000",
   ];
 
   return (
@@ -91,15 +91,15 @@ const SVG = ({
       viewBox="0 0 1440 900"
       fill="none"
       xmlns="http://www.w3.org/2000/svg"
-      className="absolute inset-0 w-full h-full pointer-events-none"
+      className="absolute inset-0 w-full h-full"
       preserveAspectRatio="xMidYMid slice"
     >
       {paths.map((path, idx) => (
         <motion.path
           d={path}
-          stroke={colors[idx]}
-          strokeWidth={0.5}
-          strokeOpacity={0.15}
+          stroke={colors[idx % colors.length]}
+          strokeWidth={1}
+          strokeOpacity={0.3}
           fill="none"
           key={`path-first-${idx}`}
           variants={pathVariants}
@@ -119,9 +119,9 @@ const SVG = ({
       {paths.map((path, idx) => (
         <motion.path
           d={path}
-          stroke={colors[idx]}
-          strokeWidth={0.5}
-          strokeOpacity={0.15}
+          stroke={colors[idx % colors.length]}
+          strokeWidth={1}
+          strokeOpacity={0.3}
           fill="none"
           key={`path-second-${idx}`}
           variants={pathVariants}
@@ -132,7 +132,7 @@ const SVG = ({
             ease: "linear",
             repeat: Infinity,
             repeatType: "loop",
-            delay: Math.floor(Math.random() * 10),
+            delay: Math.floor(Math.random() * 10) + 5,
             repeatDelay: Math.floor(Math.random() * 10 + 2),
           }}
         />
