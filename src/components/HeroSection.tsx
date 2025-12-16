@@ -13,6 +13,10 @@ import langchainIcon from '@/assets/icons/langchain.svg';
 import huggingfaceIcon from '@/assets/icons/huggingface.svg';
 import lovableIcon from '@/assets/icons/lovable.svg';
 
+// Import GIFs
+import catTypingGif from '@/assets/cat-typing.gif';
+import fireBlazeGif from '@/assets/fire-blaze.gif';
+
 // Base icons
 const baseIcons = [
   { src: claudeIcon, alt: 'Claude' },
@@ -35,40 +39,38 @@ interface ConstellationNode {
   size: number;
   opacity: number;
   pulseDelay: number;
-  driftX: number;
-  driftY: number;
-  driftDuration: number;
+  angle: number; // Angle from center for entrance animation
+  distance: number; // Distance from center
 }
 
 interface ConstellationLine {
   id: string;
   from: number;
   to: number;
+  delay: number;
 }
 
 function generateConstellationNodes(count: number): ConstellationNode[] {
   const nodes: ConstellationNode[] = [];
-  // Create a grid-like distribution with some randomness
-  const cols = 6;
-  const rows = Math.ceil(count / cols);
   
   for (let i = 0; i < count; i++) {
-    const col = i % cols;
-    const row = Math.floor(i / cols);
-    const baseX = (col / (cols - 1)) * 100;
-    const baseY = (row / (rows - 1)) * 100;
+    // Distribute across full background with some randomness
+    const angle = (i / count) * Math.PI * 2 + (Math.random() - 0.5) * 0.5;
+    const distance = 25 + Math.random() * 35; // Distance from center (25-60%)
+    
+    const x = 50 + Math.cos(angle) * distance;
+    const y = 50 + Math.sin(angle) * distance;
     
     nodes.push({
       id: i,
       icon: baseIcons[i % baseIcons.length],
-      x: baseX + (Math.random() - 0.5) * 20, // Add randomness
-      y: baseY + (Math.random() - 0.5) * 15,
-      size: 36 + Math.random() * 20,
-      opacity: 0.4 + Math.random() * 0.4,
-      pulseDelay: Math.random() * 3,
-      driftX: (Math.random() - 0.5) * 40,
-      driftY: (Math.random() - 0.5) * 30,
-      driftDuration: 10 + Math.random() * 15,
+      x: Math.max(5, Math.min(95, x)),
+      y: Math.max(5, Math.min(95, y)),
+      size: 32 + Math.random() * 24,
+      opacity: 0.5 + Math.random() * 0.4,
+      pulseDelay: Math.random() * 4,
+      angle,
+      distance,
     });
   }
   return nodes;
@@ -76,7 +78,7 @@ function generateConstellationNodes(count: number): ConstellationNode[] {
 
 function generateConstellationLines(nodes: ConstellationNode[]): ConstellationLine[] {
   const lines: ConstellationLine[] = [];
-  const maxDistance = 35; // Max distance to connect
+  const maxDistance = 30;
   
   for (let i = 0; i < nodes.length; i++) {
     for (let j = i + 1; j < nodes.length; j++) {
@@ -84,11 +86,12 @@ function generateConstellationLines(nodes: ConstellationNode[]): ConstellationLi
       const dy = nodes[i].y - nodes[j].y;
       const distance = Math.sqrt(dx * dx + dy * dy);
       
-      if (distance < maxDistance && Math.random() > 0.3) {
+      if (distance < maxDistance && Math.random() > 0.4) {
         lines.push({
           id: `${i}-${j}`,
           from: i,
           to: j,
+          delay: Math.random() * 2,
         });
       }
     }
@@ -96,35 +99,72 @@ function generateConstellationLines(nodes: ConstellationNode[]): ConstellationLi
   return lines;
 }
 
-function ConstellationIcon({ node, animatedPos }: { node: ConstellationNode; animatedPos: { x: number; y: number } }) {
+function ConstellationIcon({ node, index }: { node: ConstellationNode; index: number }) {
   return (
     <motion.div
       className="absolute pointer-events-none"
       style={{
-        left: `${animatedPos.x}%`,
-        top: `${animatedPos.y}%`,
+        left: `${node.x}%`,
+        top: `${node.y}%`,
         width: node.size,
         height: node.size,
-        transform: 'translate(-50%, -50%)',
       }}
-      animate={{
-        scale: [1, 1.15, 1],
-        opacity: [node.opacity, node.opacity + 0.2, node.opacity],
+      initial={{ 
+        x: '-50%',
+        y: '-50%',
+        scale: 0,
+        opacity: 0,
+      }}
+      animate={{ 
+        x: '-50%',
+        y: '-50%',
+        scale: 1,
+        opacity: node.opacity,
       }}
       transition={{
-        duration: 3,
-        repeat: Infinity,
-        ease: "easeInOut",
-        delay: node.pulseDelay,
+        duration: 1.2,
+        delay: 0.5 + index * 0.08,
+        ease: [0.34, 1.56, 0.64, 1], // Spring-like ease
       }}
     >
-      <div className="w-full h-full bg-background/70 border-[2px] border-primary/40 rounded-lg flex items-center justify-center backdrop-blur-sm shadow-lg shadow-primary/10">
+      {/* Glow effect */}
+      <motion.div
+        className="absolute inset-0 bg-primary/30 rounded-full blur-xl"
+        animate={{
+          scale: [1, 1.5, 1],
+          opacity: [0.3, 0.6, 0.3],
+        }}
+        transition={{
+          duration: 3 + Math.random() * 2,
+          repeat: Infinity,
+          ease: "easeInOut",
+          delay: node.pulseDelay,
+        }}
+      />
+      
+      {/* Icon container */}
+      <motion.div 
+        className="relative w-full h-full bg-background/80 border-[2px] border-primary/40 rounded-lg flex items-center justify-center backdrop-blur-sm"
+        animate={{
+          boxShadow: [
+            '0 0 10px hsl(var(--primary) / 0.2)',
+            '0 0 25px hsl(var(--primary) / 0.4)',
+            '0 0 10px hsl(var(--primary) / 0.2)',
+          ],
+        }}
+        transition={{
+          duration: 3,
+          repeat: Infinity,
+          ease: "easeInOut",
+          delay: node.pulseDelay,
+        }}
+      >
         <img 
           src={node.icon.src} 
           alt={node.icon.alt} 
           className="w-1/2 h-1/2 object-contain" 
         />
-      </div>
+      </motion.div>
     </motion.div>
   );
 }
@@ -132,63 +172,70 @@ function ConstellationIcon({ node, animatedPos }: { node: ConstellationNode; ani
 function ConstellationField() {
   const nodes = useMemo(() => generateConstellationNodes(24), []);
   const lines = useMemo(() => generateConstellationLines(nodes), [nodes]);
-  const [time, setTime] = useState(0);
-  
-  useEffect(() => {
-    const interval = setInterval(() => {
-      setTime(t => t + 0.016); // ~60fps
-    }, 16);
-    return () => clearInterval(interval);
-  }, []);
-  
-  // Calculate animated positions
-  const animatedPositions = useMemo(() => {
-    return nodes.map(node => ({
-      x: node.x + Math.sin(time / node.driftDuration * Math.PI * 2) * node.driftX * 0.3,
-      y: node.y + Math.cos(time / node.driftDuration * Math.PI * 2) * node.driftY * 0.3,
-    }));
-  }, [nodes, time]);
   
   return (
     <div className="absolute inset-0 overflow-hidden">
-      {/* Connecting Lines */}
+      {/* Connecting Lines with entrance animation */}
       <svg className="absolute inset-0 w-full h-full">
-        {lines.map((line, index) => {
-          const fromPos = animatedPositions[line.from];
-          const toPos = animatedPositions[line.to];
-          const pulseOffset = (time * 0.5 + index * 0.2) % 1;
+        {lines.map((line) => {
+          const fromNode = nodes[line.from];
+          const toNode = nodes[line.to];
           
           return (
-            <g key={line.id}>
-              {/* Base line */}
-              <line
-                x1={`${fromPos.x}%`}
-                y1={`${fromPos.y}%`}
-                x2={`${toPos.x}%`}
-                y2={`${toPos.y}%`}
-                stroke="hsl(var(--primary))"
-                strokeWidth="1"
-                strokeOpacity="0.15"
-              />
-              {/* Animated pulse */}
-              <circle
-                cx={`${fromPos.x + (toPos.x - fromPos.x) * pulseOffset}%`}
-                cy={`${fromPos.y + (toPos.y - fromPos.y) * pulseOffset}%`}
-                r="2"
-                fill="hsl(var(--primary))"
-                opacity={0.6 * (1 - Math.abs(pulseOffset - 0.5) * 2)}
-              />
-            </g>
+            <motion.line
+              key={line.id}
+              x1={`${fromNode.x}%`}
+              y1={`${fromNode.y}%`}
+              x2={`${toNode.x}%`}
+              y2={`${toNode.y}%`}
+              stroke="hsl(var(--primary))"
+              strokeWidth="1.5"
+              initial={{ pathLength: 0, opacity: 0 }}
+              animate={{ 
+                pathLength: 1, 
+                opacity: [0, 0.3, 0.15],
+              }}
+              transition={{
+                pathLength: { duration: 1.5, delay: 1 + line.delay },
+                opacity: { duration: 2, delay: 1 + line.delay },
+              }}
+            />
+          );
+        })}
+        
+        {/* Animated pulses on lines */}
+        {lines.map((line, index) => {
+          const fromNode = nodes[line.from];
+          const toNode = nodes[line.to];
+          
+          return (
+            <motion.circle
+              key={`pulse-${line.id}`}
+              r="3"
+              fill="hsl(var(--primary))"
+              initial={{ opacity: 0 }}
+              animate={{
+                cx: [`${fromNode.x}%`, `${toNode.x}%`],
+                cy: [`${fromNode.y}%`, `${toNode.y}%`],
+                opacity: [0, 0.8, 0],
+              }}
+              transition={{
+                duration: 3,
+                repeat: Infinity,
+                delay: 3 + index * 0.3,
+                ease: "linear",
+              }}
+            />
           );
         })}
       </svg>
       
-      {/* Icons */}
+      {/* Icons with entrance from center */}
       {nodes.map((node, index) => (
         <ConstellationIcon 
           key={node.id} 
           node={node} 
-          animatedPos={animatedPositions[index]}
+          index={index}
         />
       ))}
     </div>
@@ -303,7 +350,7 @@ export default function HeroSection() {
                     className="absolute -top-40 left-1/2 -translate-x-1/2 z-50 pointer-events-none"
                   >
                     <img 
-                      src="https://media.giphy.com/media/JIX9t2j0ZTN9S/giphy.gif" 
+                      src={catTypingGif} 
                       alt="Cat typing" 
                       className="w-40 h-32 object-cover border-[3px] border-foreground rounded-sm"
                     />
@@ -351,7 +398,7 @@ export default function HeroSection() {
                         className="absolute -top-36 left-1/2 -translate-x-1/2 z-50 pointer-events-none"
                       >
                         <img 
-                          src="https://media.giphy.com/media/l4FGni1RBAR2OWsGk/giphy.gif" 
+                          src={fireBlazeGif} 
                           alt="Fire" 
                           className="w-32 h-28 object-cover border-[3px] border-foreground rounded-sm"
                         />
