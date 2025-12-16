@@ -1,29 +1,19 @@
 import { motion } from 'framer-motion';
-import { useState, Suspense, lazy } from 'react';
-
-const Spline = lazy(() => import('@splinetool/react-spline'));
+import { useState } from 'react';
 
 export default function HeroSection() {
   const [isHoveringBuilders, setIsHoveringBuilders] = useState(false);
 
   return (
-    <section className="relative min-h-screen flex items-center justify-center overflow-hidden pt-20">
-      {/* Spline 3D Background */}
+    <section className="relative min-h-screen flex items-center justify-center overflow-hidden pt-20 bg-background">
+      {/* Background Pattern */}
       <div className="absolute inset-0 z-0">
-        <Suspense fallback={
-          <div className="w-full h-full bg-background flex items-center justify-center">
-            <div className="w-16 h-16 border-4 border-foreground border-t-transparent rounded-full animate-spin" />
-          </div>
-        }>
-          <Spline
-            scene="https://prod.spline.design/jxJSFOOO1mYBTmBT/scene.splinecode"
-            className="w-full h-full"
-          />
-        </Suspense>
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,hsl(var(--accent)/0.1)_0%,transparent_70%)]" />
+        <div className="absolute inset-0 bg-[linear-gradient(to_right,hsl(var(--foreground)/0.03)_1px,transparent_1px),linear-gradient(to_bottom,hsl(var(--foreground)/0.03)_1px,transparent_1px)] bg-[size:60px_60px]" />
       </div>
       
       {/* Content */}
-      <div className="relative z-10 container mx-auto px-4 sm:px-6 lg:px-8 pointer-events-auto">
+      <div className="relative z-10 container mx-auto px-4 sm:px-6 lg:px-8">
         <div className="max-w-5xl mx-auto text-center">
           {/* Main Heading */}
           <motion.h1
