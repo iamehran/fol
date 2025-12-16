@@ -4,7 +4,7 @@ import { X } from 'lucide-react';
 import figoutLogo from '@/assets/figout-logo-new.png';
 
 const navLinks = [
-  { href: '#services', label: 'Services' },
+  { href: '#what-we-do', label: 'What we do' },
   { href: '#testimonials', label: 'Testimonials' },
   { href: '#manifesto', label: 'Manifesto' },
 ];

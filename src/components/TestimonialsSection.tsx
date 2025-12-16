@@ -85,7 +85,7 @@ function TestimonialCard({ testimonial, index }: { testimonial: typeof testimoni
 
 export default function TestimonialsSection() {
   return (
-    <section className="py-24 md:py-32 bg-secondary border-y-[3px] border-foreground">
+    <section id="testimonials" className="py-24 md:py-32 bg-secondary border-y-[3px] border-foreground">
       <div className="container mx-auto px-4 sm:px-6 lg:px-8">
         {/* Section Header */}
         <motion.div
