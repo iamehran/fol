@@ -52,26 +52,25 @@ interface ConstellationLine {
 
 function generateConstellationNodes(count: number): ConstellationNode[] {
   const nodes: ConstellationNode[] = [];
-  const minDistance = 18; // Minimum distance between icons
   
-  // Grid-based distribution for better spacing
-  const cols = 6;
-  const rows = 4;
+  // Positions that avoid the center text area (roughly 25-75% horizontally, 30-70% vertically)
+  const safePositions = [
+    // Top row - far from center
+    { x: 5, y: 8 }, { x: 18, y: 5 }, { x: 35, y: 6 }, { x: 65, y: 5 }, { x: 82, y: 8 }, { x: 95, y: 10 },
+    // Left side
+    { x: 3, y: 25 }, { x: 8, y: 45 }, { x: 5, y: 65 }, { x: 10, y: 85 },
+    // Right side  
+    { x: 92, y: 28 }, { x: 95, y: 50 }, { x: 90, y: 72 }, { x: 95, y: 88 },
+    // Bottom row - far from center
+    { x: 8, y: 92 }, { x: 25, y: 95 }, { x: 45, y: 92 }, { x: 55, y: 95 }, { x: 75, y: 92 }, { x: 88, y: 95 },
+    // Extra corners
+    { x: 15, y: 15 }, { x: 85, y: 15 }, { x: 15, y: 85 }, { x: 85, y: 85 },
+  ];
   
-  for (let i = 0; i < count; i++) {
-    const col = i % cols;
-    const row = Math.floor(i / cols);
-    
-    // Base position in grid with offset for visual interest
-    const baseX = 8 + (col / (cols - 1)) * 84;
-    const baseY = 10 + (row / (rows - 1)) * 80;
-    
-    // Add controlled randomness
-    const offsetX = (Math.random() - 0.5) * 10;
-    const offsetY = (Math.random() - 0.5) * 10;
-    
-    const x = Math.max(5, Math.min(95, baseX + offsetX));
-    const y = Math.max(5, Math.min(95, baseY + offsetY));
+  for (let i = 0; i < Math.min(count, safePositions.length); i++) {
+    const pos = safePositions[i];
+    const x = pos.x + (Math.random() - 0.5) * 4;
+    const y = pos.y + (Math.random() - 0.5) * 4;
     
     const angle = Math.atan2(y - 50, x - 50);
     const distance = Math.sqrt((x - 50) ** 2 + (y - 50) ** 2);
@@ -79,10 +78,10 @@ function generateConstellationNodes(count: number): ConstellationNode[] {
     nodes.push({
       id: i,
       icon: baseIcons[i % baseIcons.length],
-      x,
-      y,
+      x: Math.max(2, Math.min(98, x)),
+      y: Math.max(2, Math.min(98, y)),
       size: 40 + Math.random() * 16,
-      opacity: 1, // Full opacity
+      opacity: 1,
       pulseDelay: Math.random() * 4,
       angle,
       distance,
@@ -139,39 +138,14 @@ function ConstellationIcon({ node, index }: { node: ConstellationNode; index: nu
       transition={{
         duration: 1.2,
         delay: 0.5 + index * 0.08,
-        ease: [0.34, 1.56, 0.64, 1], // Spring-like ease
+        ease: [0.34, 1.56, 0.64, 1],
       }}
     >
-      {/* Glow effect */}
-      <motion.div
-        className="absolute inset-0 bg-primary/30 rounded-full blur-xl"
-        animate={{
-          scale: [1, 1.5, 1],
-          opacity: [0.3, 0.6, 0.3],
-        }}
-        transition={{
-          duration: 3 + Math.random() * 2,
-          repeat: Infinity,
-          ease: "easeInOut",
-          delay: node.pulseDelay,
-        }}
-      />
-      
-      {/* Icon container */}
+      {/* Icon container with subtle black shadow */}
       <motion.div 
-        className="relative w-full h-full bg-background/80 border-[2px] border-primary/40 rounded-lg flex items-center justify-center backdrop-blur-sm"
-        animate={{
-          boxShadow: [
-            '0 0 10px hsl(var(--primary) / 0.2)',
-            '0 0 25px hsl(var(--primary) / 0.4)',
-            '0 0 10px hsl(var(--primary) / 0.2)',
-          ],
-        }}
-        transition={{
-          duration: 3,
-          repeat: Infinity,
-          ease: "easeInOut",
-          delay: node.pulseDelay,
+        className="relative w-full h-full bg-background border-[2px] border-foreground/20 rounded-lg flex items-center justify-center"
+        style={{
+          boxShadow: '3px 3px 0px rgba(0, 0, 0, 0.15)',
         }}
       >
         <img 
@@ -190,7 +164,7 @@ function ConstellationField() {
   
   return (
     <div className="absolute inset-0 overflow-hidden">
-      {/* Connecting Lines with entrance animation */}
+      {/* Connecting Lines - black color */}
       <svg className="absolute inset-0 w-full h-full">
         {lines.map((line) => {
           const fromNode = nodes[line.from];
@@ -203,7 +177,7 @@ function ConstellationField() {
               y1={`${fromNode.y}%`}
               x2={`${toNode.x}%`}
               y2={`${toNode.y}%`}
-              stroke="hsl(var(--primary))"
+              stroke="rgba(0, 0, 0, 0.6)"
               strokeWidth="1.5"
               initial={{ pathLength: 0, opacity: 0 }}
               animate={{ 
@@ -218,7 +192,7 @@ function ConstellationField() {
           );
         })}
         
-        {/* Animated pulses on lines */}
+        {/* Animated white pulses on lines */}
         {lines.map((line, index) => {
           const fromNode = nodes[line.from];
           const toNode = nodes[line.to];
@@ -226,13 +200,15 @@ function ConstellationField() {
           return (
             <motion.circle
               key={`pulse-${line.id}`}
-              r="3"
-              fill="hsl(var(--primary))"
+              r="4"
+              fill="white"
+              stroke="rgba(0,0,0,0.3)"
+              strokeWidth="1"
               initial={{ opacity: 0 }}
               animate={{
                 cx: [`${fromNode.x}%`, `${toNode.x}%`],
                 cy: [`${fromNode.y}%`, `${toNode.y}%`],
-                opacity: [0, 0.8, 0],
+                opacity: [0, 1, 0],
               }}
               transition={{
                 duration: 3,
@@ -245,7 +221,7 @@ function ConstellationField() {
         })}
       </svg>
       
-      {/* Icons with entrance from center */}
+      {/* Icons */}
       {nodes.map((node, index) => (
         <ConstellationIcon 
           key={node.id} 
@@ -410,12 +386,12 @@ export default function HeroSection() {
                           scale: { duration: 0.2 },
                           x: { duration: 0.1, ease: "easeOut" }
                         }}
-                        className="absolute -top-36 left-1/2 -translate-x-1/2 z-50 pointer-events-none"
+                        className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 z-50 pointer-events-none"
                       >
                         <img 
                           src={fireBlazeGif} 
                           alt="Fire" 
-                          className="max-w-40 max-h-36"
+                          className="w-auto h-auto max-w-[120px]"
                         />
                       </motion.div>
                     )}
