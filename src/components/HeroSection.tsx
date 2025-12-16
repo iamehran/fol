@@ -1,6 +1,27 @@
 import { motion } from 'framer-motion';
 import { useState } from 'react';
 
+// Import tool icons
+import claudeIcon from '@/assets/icons/claude.svg';
+import geminiIcon from '@/assets/icons/gemini.svg';
+import makeIcon from '@/assets/icons/make.svg';
+import n8nIcon from '@/assets/icons/n8n.svg';
+import openaiIcon from '@/assets/icons/openai.svg';
+import zapierIcon from '@/assets/icons/zapier.svg';
+import notionIcon from '@/assets/icons/notion.svg';
+import langchainIcon from '@/assets/icons/langchain.svg';
+
+const orbitIcons = [
+  { src: claudeIcon, alt: 'Claude' },
+  { src: geminiIcon, alt: 'Gemini' },
+  { src: makeIcon, alt: 'Make' },
+  { src: n8nIcon, alt: 'n8n' },
+  { src: openaiIcon, alt: 'OpenAI' },
+  { src: zapierIcon, alt: 'Zapier' },
+  { src: notionIcon, alt: 'Notion' },
+  { src: langchainIcon, alt: 'LangChain' },
+];
+
 export default function HeroSection() {
   const [isHoveringBuilders, setIsHoveringBuilders] = useState(false);
 
@@ -10,6 +31,56 @@ export default function HeroSection() {
       <div className="absolute inset-0 z-0">
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,hsl(var(--accent)/0.1)_0%,transparent_70%)]" />
         <div className="absolute inset-0 bg-[linear-gradient(to_right,hsl(var(--foreground)/0.03)_1px,transparent_1px),linear-gradient(to_bottom,hsl(var(--foreground)/0.03)_1px,transparent_1px)] bg-[size:60px_60px]" />
+      </div>
+      
+      {/* Orbiting Icons */}
+      <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+        <div className="relative w-[600px] h-[600px] md:w-[800px] md:h-[800px]">
+          {orbitIcons.map((icon, index) => {
+            const angle = (index / orbitIcons.length) * 360;
+            return (
+              <motion.div
+                key={icon.alt}
+                className="absolute w-10 h-10 md:w-14 md:h-14"
+                style={{
+                  top: '50%',
+                  left: '50%',
+                }}
+                animate={{
+                  rotate: [angle, angle + 360],
+                }}
+                transition={{
+                  rotate: {
+                    duration: 30,
+                    repeat: Infinity,
+                    ease: "linear",
+                  },
+                }}
+              >
+                <motion.div
+                  className="absolute"
+                  style={{
+                    transform: `translateX(250px) translateY(-50%) rotate(-${angle}deg)`,
+                  }}
+                  animate={{
+                    rotate: [-angle, -angle - 360],
+                  }}
+                  transition={{
+                    rotate: {
+                      duration: 30,
+                      repeat: Infinity,
+                      ease: "linear",
+                    },
+                  }}
+                >
+                  <div className="w-10 h-10 md:w-14 md:h-14 bg-background border-2 border-foreground/20 rounded-xl flex items-center justify-center opacity-60 hover:opacity-100 transition-opacity">
+                    <img src={icon.src} alt={icon.alt} className="w-6 h-6 md:w-8 md:h-8" />
+                  </div>
+                </motion.div>
+              </motion.div>
+            );
+          })}
+        </div>
       </div>
       
       {/* Content */}
@@ -30,7 +101,7 @@ export default function HeroSection() {
                 onMouseEnter={() => setIsHoveringBuilders(true)}
                 onMouseLeave={() => setIsHoveringBuilders(false)}
               >
-                <span className="bg-accent text-accent-foreground px-3 py-1 inline-block transform -rotate-1 shadow-brutal">
+                <span className="bg-accent text-accent-foreground px-3 py-1 inline-block transform -rotate-1">
                   Builders
                 </span>
                 {/* Cat typing gif on hover */}
@@ -39,12 +110,12 @@ export default function HeroSection() {
                     initial={{ opacity: 0, scale: 0.8, y: 10 }}
                     animate={{ opacity: 1, scale: 1, y: 0 }}
                     exit={{ opacity: 0, scale: 0.8 }}
-                    className="absolute -top-32 left-1/2 -translate-x-1/2 z-50"
+                    className="absolute -top-40 left-1/2 -translate-x-1/2 z-50"
                   >
                     <img 
                       src="https://media.giphy.com/media/JIX9t2j0ZTN9S/giphy.gif" 
                       alt="Cat typing" 
-                      className="w-32 h-24 object-cover border-[3px] border-foreground shadow-brutal rounded-sm"
+                      className="w-40 h-32 object-cover border-[3px] border-foreground rounded-sm"
                     />
                   </motion.div>
                 )}
@@ -76,7 +147,9 @@ export default function HeroSection() {
             className="relative z-20"
           >
             <a
-              href="#book"
+              href="https://calendar.app.google/XmdUw45c77LS4o417"
+              target="_blank"
+              rel="noopener noreferrer"
               className="btn-brutal-primary text-lg px-8 py-4 inline-flex items-center gap-3 group"
             >
               Book a call

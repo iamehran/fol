@@ -44,7 +44,7 @@ export default function CTASection() {
                 whileTap={{ scale: 0.98 }}
               >
                 <a
-                  href="https://cal.com"
+                  href="https://calendar.app.google/XmdUw45c77LS4o417"
                   target="_blank"
                   rel="noopener noreferrer"
                   className="inline-flex items-center gap-3 px-8 py-5 bg-primary text-primary-foreground font-bold text-lg uppercase tracking-wider border-[3px] border-background transition-all duration-150 hover:bg-accent hover:text-accent-foreground group"

@@ -13,7 +13,7 @@ const words = [
 
 export default function MarqueeSection() {
   return (
-    <section className="py-8 border-y-[3px] border-foreground bg-foreground text-background overflow-hidden">
+    <section className="py-8 border-y-[3px] border-foreground bg-foreground text-background overflow-hidden transform -rotate-1">
       <div className="flex">
         <motion.div
           className="flex gap-8 whitespace-nowrap"
