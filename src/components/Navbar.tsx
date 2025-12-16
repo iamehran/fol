@@ -1,6 +1,6 @@
 import { motion } from 'framer-motion';
 import { useState } from 'react';
-import figoutLogo from '@/assets/figout-logo.png';
+import figoutLogo from '@/assets/figout-logo-new.png';
 
 export default function Navbar() {
   const [isOpen, setIsOpen] = useState(false);
@@ -19,7 +19,7 @@ export default function Navbar() {
             <img 
               src={figoutLogo} 
               alt="FigOut Labs" 
-              className="h-8 w-auto transition-transform group-hover:scale-110 duration-300"
+              className="h-12 w-auto transition-transform group-hover:scale-110 duration-300"
             />
             <span className="font-bold text-xl uppercase tracking-tight hidden sm:block">FigOut Labs</span>
           </a>

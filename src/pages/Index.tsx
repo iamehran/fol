@@ -14,12 +14,12 @@ const Index = () => {
     <main className="noise-overlay">
       <Navbar />
       <HeroSection />
-      <SplineSection />
       <MarqueeSection />
       <StatsSection />
       <ServicesSection />
       <ScrollSection />
       <TestimonialsSection />
+      <SplineSection />
       <CTASection />
       <Footer />
     </main>
