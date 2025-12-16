@@ -104,36 +104,47 @@ export default function Navbar() {
       <AnimatePresence>
         {showFloatingCTA && !floatingDismissed && (
           <motion.div
-            initial={{ x: 100, opacity: 0 }}
-            animate={{ x: 0, opacity: 1 }}
-            exit={{ x: 100, opacity: 0 }}
-            transition={{ type: "spring", stiffness: 300, damping: 30 }}
-            className="fixed right-4 md:right-6 top-4 md:top-6 z-[100] flex flex-col items-center gap-3 bg-background border-[3px] border-foreground p-4 shadow-brutal"
+            initial={{ scale: 0.3, opacity: 0, y: -50, x: 50 }}
+            animate={{ scale: 1, opacity: 1, y: 0, x: 0 }}
+            exit={{ scale: 0.3, opacity: 0, y: -50, x: 50 }}
+            transition={{ 
+              type: "spring", 
+              stiffness: 400, 
+              damping: 25,
+              mass: 0.8
+            }}
+            className="fixed right-4 md:right-6 top-4 md:top-6 z-[100] flex flex-col items-center gap-4 bg-foreground border-[3px] border-foreground p-5 shadow-brutal"
           >
             {/* Close button */}
             <button
               onClick={handleDismissFloating}
-              className="absolute -top-2 -left-2 w-6 h-6 bg-foreground text-background flex items-center justify-center border-[2px] border-foreground hover:bg-primary hover:text-foreground transition-colors"
+              className="absolute -top-2 -left-2 w-6 h-6 bg-background text-foreground flex items-center justify-center border-[2px] border-foreground hover:bg-primary hover:text-foreground transition-colors"
               aria-label="Close"
             >
               <X className="w-3 h-3" />
             </button>
 
-            {/* Logo */}
-            <img 
+            {/* Logo with animation */}
+            <motion.img 
               src={figoutLogo} 
               alt="FigOut Labs" 
-              className="h-10 w-auto"
+              className="h-14 w-auto"
+              initial={{ scale: 0, rotate: -10 }}
+              animate={{ scale: 1, rotate: 0 }}
+              transition={{ delay: 0.1, type: "spring", stiffness: 300 }}
             />
 
             {/* Book a call button */}
-            <a
+            <motion.a
               href="#book"
               className="btn-brutal-primary text-xs whitespace-nowrap"
               style={{ boxShadow: '3px 3px 0px hsl(var(--accent))' }}
+              initial={{ y: 10, opacity: 0 }}
+              animate={{ y: 0, opacity: 1 }}
+              transition={{ delay: 0.2 }}
             >
               Book a call
-            </a>
+            </motion.a>
           </motion.div>
         )}
       </AnimatePresence>
