@@ -52,22 +52,37 @@ interface ConstellationLine {
 
 function generateConstellationNodes(count: number): ConstellationNode[] {
   const nodes: ConstellationNode[] = [];
+  const minDistance = 18; // Minimum distance between icons
+  
+  // Grid-based distribution for better spacing
+  const cols = 6;
+  const rows = 4;
   
   for (let i = 0; i < count; i++) {
-    // Distribute across full background with some randomness
-    const angle = (i / count) * Math.PI * 2 + (Math.random() - 0.5) * 0.5;
-    const distance = 25 + Math.random() * 35; // Distance from center (25-60%)
+    const col = i % cols;
+    const row = Math.floor(i / cols);
     
-    const x = 50 + Math.cos(angle) * distance;
-    const y = 50 + Math.sin(angle) * distance;
+    // Base position in grid with offset for visual interest
+    const baseX = 8 + (col / (cols - 1)) * 84;
+    const baseY = 10 + (row / (rows - 1)) * 80;
+    
+    // Add controlled randomness
+    const offsetX = (Math.random() - 0.5) * 10;
+    const offsetY = (Math.random() - 0.5) * 10;
+    
+    const x = Math.max(5, Math.min(95, baseX + offsetX));
+    const y = Math.max(5, Math.min(95, baseY + offsetY));
+    
+    const angle = Math.atan2(y - 50, x - 50);
+    const distance = Math.sqrt((x - 50) ** 2 + (y - 50) ** 2);
     
     nodes.push({
       id: i,
       icon: baseIcons[i % baseIcons.length],
-      x: Math.max(5, Math.min(95, x)),
-      y: Math.max(5, Math.min(95, y)),
-      size: 32 + Math.random() * 24,
-      opacity: 0.5 + Math.random() * 0.4,
+      x,
+      y,
+      size: 40 + Math.random() * 16,
+      opacity: 1, // Full opacity
       pulseDelay: Math.random() * 4,
       angle,
       distance,
@@ -119,7 +134,7 @@ function ConstellationIcon({ node, index }: { node: ConstellationNode; index: nu
         x: '-50%',
         y: '-50%',
         scale: 1,
-        opacity: node.opacity,
+        opacity: 1,
       }}
       transition={{
         duration: 1.2,
@@ -193,11 +208,11 @@ function ConstellationField() {
               initial={{ pathLength: 0, opacity: 0 }}
               animate={{ 
                 pathLength: 1, 
-                opacity: [0, 0.3, 0.15],
+                opacity: 1,
               }}
               transition={{
                 pathLength: { duration: 1.5, delay: 1 + line.delay },
-                opacity: { duration: 2, delay: 1 + line.delay },
+                opacity: { duration: 1, delay: 1 + line.delay },
               }}
             />
           );
@@ -352,7 +367,7 @@ export default function HeroSection() {
                     <img 
                       src={catTypingGif} 
                       alt="Cat typing" 
-                      className="w-40 h-32 object-cover border-[3px] border-foreground rounded-sm"
+                      className="max-w-48 max-h-40"
                     />
                   </motion.div>
                 )}
@@ -400,7 +415,7 @@ export default function HeroSection() {
                         <img 
                           src={fireBlazeGif} 
                           alt="Fire" 
-                          className="w-32 h-28 object-cover border-[3px] border-foreground rounded-sm"
+                          className="max-w-40 max-h-36"
                         />
                       </motion.div>
                     )}
@@ -441,7 +456,7 @@ export default function HeroSection() {
                       <img 
                         src="https://media.giphy.com/media/d3mlE7uhX8KFgEmY/giphy.gif" 
                         alt="Thinking" 
-                        className="w-32 h-28 object-cover border-[3px] border-foreground rounded-sm"
+                        className="max-w-40 max-h-36"
                       />
                     </motion.div>
                   )}
