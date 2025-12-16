@@ -1,5 +1,9 @@
 import { motion } from 'framer-motion';
 import { useState, useRef } from 'react';
+
+// Import logo
+import figoutLogo from '@/assets/figout-logo-new.png';
+
 // Import tool icons
 import claudeIcon from '@/assets/icons/claude.svg';
 import geminiIcon from '@/assets/icons/gemini.svg';
@@ -12,26 +16,22 @@ import langchainIcon from '@/assets/icons/langchain.svg';
 import huggingfaceIcon from '@/assets/icons/huggingface.svg';
 import lovableIcon from '@/assets/icons/lovable.svg';
 
-// Inner ring - faster, closer
-const innerOrbitIcons = [
-  { src: claudeIcon, alt: 'Claude', color: 'hsl(var(--accent))' },
-  { src: openaiIcon, alt: 'OpenAI', color: 'hsl(var(--primary))' },
-  { src: geminiIcon, alt: 'Gemini', color: 'hsl(var(--highlight))' },
-  { src: lovableIcon, alt: 'Lovable', color: 'hsl(var(--accent))' },
-  { src: langchainIcon, alt: 'LangChain', color: 'hsl(var(--primary))' },
-];
-
-// Outer ring - slower, further
-const outerOrbitIcons = [
-  { src: makeIcon, alt: 'Make', color: 'hsl(var(--highlight))' },
-  { src: n8nIcon, alt: 'n8n', color: 'hsl(var(--primary))' },
-  { src: zapierIcon, alt: 'Zapier', color: 'hsl(var(--accent))' },
-  { src: notionIcon, alt: 'Notion', color: 'hsl(var(--highlight))' },
-  { src: huggingfaceIcon, alt: 'HuggingFace', color: 'hsl(var(--primary))' },
+// Single orbit with all icons
+const orbitIcons = [
+  { src: claudeIcon, alt: 'Claude' },
+  { src: makeIcon, alt: 'Make' },
+  { src: openaiIcon, alt: 'OpenAI' },
+  { src: n8nIcon, alt: 'n8n' },
+  { src: geminiIcon, alt: 'Gemini' },
+  { src: zapierIcon, alt: 'Zapier' },
+  { src: lovableIcon, alt: 'Lovable' },
+  { src: notionIcon, alt: 'Notion' },
+  { src: langchainIcon, alt: 'LangChain' },
+  { src: huggingfaceIcon, alt: 'HuggingFace' },
 ];
 
 interface OrbitIconProps {
-  icon: { src: string; alt: string; color: string };
+  icon: { src: string; alt: string };
   index: number;
   total: number;
   radius: number;
@@ -42,7 +42,7 @@ function OrbitIcon({ icon, index, total, radius }: OrbitIconProps) {
 
   return (
     <motion.div
-      className="absolute w-12 h-12 md:w-16 md:h-16 pointer-events-auto"
+      className="absolute w-11 h-11 md:w-14 md:h-14 pointer-events-auto"
       style={{
         left: `calc(50% + ${Math.cos((angle * Math.PI) / 180) * radius}px)`,
         top: `calc(50% + ${Math.sin((angle * Math.PI) / 180) * radius}px)`,
@@ -52,27 +52,26 @@ function OrbitIcon({ icon, index, total, radius }: OrbitIconProps) {
       transition={{ scale: { duration: 0.2 } }}
     >
       <div
-        className="w-12 h-12 md:w-16 md:h-16 bg-background border-[3px] border-foreground rounded-xl flex items-center justify-center"
+        className="w-11 h-11 md:w-14 md:h-14 bg-background border-[3px] border-foreground rounded-xl flex items-center justify-center"
         style={{ boxShadow: 'var(--shadow-brutal)' }}
       >
-        <img src={icon.src} alt={icon.alt} className="w-7 h-7 md:w-9 md:h-9" />
+        <img src={icon.src} alt={icon.alt} className="w-6 h-6 md:w-8 md:h-8" />
       </div>
     </motion.div>
   );
 }
 
 interface OrbitRingProps {
-  icons: typeof innerOrbitIcons;
+  icons: typeof orbitIcons;
   radius: number;
   duration: number;
-  direction: 1 | -1;
 }
 
-function OrbitRing({ icons, radius, duration, direction }: OrbitRingProps) {
+function OrbitRing({ icons, radius, duration }: OrbitRingProps) {
   return (
     <motion.div 
       className="absolute inset-0"
-      animate={{ rotate: 360 * direction }}
+      animate={{ rotate: 360 }}
       transition={{
         duration: duration,
         repeat: Infinity,
@@ -110,38 +109,60 @@ export default function HeroSection() {
 
   return (
     <section className="relative min-h-screen flex items-center justify-center overflow-hidden pt-20 bg-background">
-      {/* Background Pattern */}
+      {/* Creative Background */}
       <div className="absolute inset-0 z-0">
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,hsl(var(--accent)/0.1)_0%,transparent_70%)]" />
-        <div className="absolute inset-0 bg-[linear-gradient(to_right,hsl(var(--foreground)/0.03)_1px,transparent_1px),linear-gradient(to_bottom,hsl(var(--foreground)/0.03)_1px,transparent_1px)] bg-[size:60px_60px]" />
+        {/* Gradient mesh */}
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_80%_80%_at_50%_-20%,hsl(var(--primary)/0.15),transparent)]" />
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_60%_60%_at_100%_100%,hsl(var(--accent)/0.08),transparent)]" />
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_40%_40%_at_0%_50%,hsl(var(--highlight)/0.06),transparent)]" />
+        
+        {/* Subtle grid */}
+        <div className="absolute inset-0 bg-[linear-gradient(to_right,hsl(var(--foreground)/0.02)_1px,transparent_1px),linear-gradient(to_bottom,hsl(var(--foreground)/0.02)_1px,transparent_1px)] bg-[size:80px_80px]" />
+        
+        {/* Floating shapes */}
+        <motion.div 
+          className="absolute top-[15%] left-[10%] w-32 h-32 bg-primary/10 rounded-full blur-3xl"
+          animate={{ y: [0, -30, 0], x: [0, 15, 0] }}
+          transition={{ duration: 8, repeat: Infinity, ease: "easeInOut" }}
+        />
+        <motion.div 
+          className="absolute bottom-[20%] right-[15%] w-40 h-40 bg-accent/10 rounded-full blur-3xl"
+          animate={{ y: [0, 20, 0], x: [0, -20, 0] }}
+          transition={{ duration: 10, repeat: Infinity, ease: "easeInOut" }}
+        />
+        <motion.div 
+          className="absolute top-[40%] right-[8%] w-24 h-24 bg-highlight/10 rounded-full blur-2xl"
+          animate={{ y: [0, 25, 0] }}
+          transition={{ duration: 6, repeat: Infinity, ease: "easeInOut" }}
+        />
       </div>
       
-      {/* Orbiting Icons Container - z-20 to ensure always in front of text */}
-      <div className="absolute inset-0 flex items-center justify-center z-20 pointer-events-none">
-        {/* Orbit path rings (visual guides) */}
-        <div className="absolute w-[560px] h-[560px] md:w-[700px] md:h-[700px] border-2 border-dashed border-foreground/10 rounded-full" />
-        <div className="absolute w-[840px] h-[840px] md:w-[1000px] md:h-[1000px] border-2 border-dashed border-foreground/5 rounded-full" />
-        
-        {/* Inner orbit - faster */}
+      {/* Single Orbiting Ring - around entire content */}
+      <div className="absolute inset-0 flex items-center justify-center z-5 pointer-events-none">
         <OrbitRing
-          icons={innerOrbitIcons}
-          radius={280}
-          duration={25}
-          direction={1}
-        />
-        
-        {/* Outer orbit - slower, opposite direction */}
-        <OrbitRing
-          icons={outerOrbitIcons}
-          radius={420}
-          duration={40}
-          direction={-1}
+          icons={orbitIcons}
+          radius={480}
+          duration={45}
         />
       </div>
       
       {/* Content */}
       <div className="relative z-10 container mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="max-w-5xl mx-auto text-center">
+        <div className="max-w-4xl mx-auto text-center">
+          {/* Logo above headline */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5 }}
+            className="mb-8 flex justify-center"
+          >
+            <img 
+              src={figoutLogo} 
+              alt="FigOut Labs" 
+              className="h-20 md:h-28 w-auto object-contain"
+            />
+          </motion.div>
+
           {/* Main Heading */}
           <motion.h1
             initial={{ opacity: 0, y: 30 }}
