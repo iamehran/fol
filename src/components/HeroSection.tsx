@@ -56,11 +56,18 @@ function generateConstellationNodes(isMobile: boolean): ConstellationNode[] {
   
   // Different positions for mobile vs desktop
   const safePositions = isMobile ? [
-    // Mobile: Only 4 corner icons, smaller and less intrusive
-    { x: 5, y: 5, size: 32 },
-    { x: 95, y: 5, size: 32 },
-    { x: 5, y: 95, size: 32 },
-    { x: 95, y: 95, size: 32 },
+    // Mobile: 8 strategically placed small icons around the edges
+    // Top scattered
+    { x: 8, y: 8, size: 28 },
+    { x: 92, y: 12, size: 26 },
+    // Side decorations (avoiding center content)
+    { x: 4, y: 35, size: 24 },
+    { x: 96, y: 42, size: 26 },
+    { x: 6, y: 65, size: 24 },
+    { x: 94, y: 70, size: 26 },
+    // Bottom scattered
+    { x: 15, y: 92, size: 26 },
+    { x: 85, y: 94, size: 28 },
   ] : [
     // Desktop: Full constellation
     // LEFT STRIP (0-15% X)
@@ -121,10 +128,19 @@ function generateConstellationLines(nodes: ConstellationNode[], isMobile: boolea
   const lines: ConstellationLine[] = [];
   
   if (isMobile) {
-    // Mobile: minimal connections - just corners
-    if (nodes.length >= 4) {
-      lines.push({ id: 'M1', from: 0, to: 1, delay: 0.1 }); // top line
-      lines.push({ id: 'M2', from: 2, to: 3, delay: 0.2 }); // bottom line
+    // Mobile: elegant network with diagonal connections
+    if (nodes.length >= 8) {
+      // Top connections
+      lines.push({ id: 'M1', from: 0, to: 2, delay: 0.1 }); // top-left to left-side
+      lines.push({ id: 'M2', from: 1, to: 3, delay: 0.15 }); // top-right to right-side
+      // Side chains
+      lines.push({ id: 'M3', from: 2, to: 4, delay: 0.2 }); // left chain
+      lines.push({ id: 'M4', from: 3, to: 5, delay: 0.25 }); // right chain
+      // Bottom connections
+      lines.push({ id: 'M5', from: 4, to: 6, delay: 0.3 }); // left to bottom
+      lines.push({ id: 'M6', from: 5, to: 7, delay: 0.35 }); // right to bottom
+      // Cross diagonal for visual interest
+      lines.push({ id: 'M7', from: 6, to: 7, delay: 0.4 }); // bottom connection
     }
     return lines;
   }

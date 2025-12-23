@@ -9,9 +9,9 @@ const stats = [
 
 export default function StatsSection() {
   return (
-    <section className="py-16 md:py-24 border-y-[3px] border-foreground bg-background">
-      <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-6 md:gap-8">
+    <section className="py-12 md:py-24 border-y-[2px] md:border-y-[3px] border-foreground bg-background">
+      <div className="container mx-auto px-5 sm:px-6 lg:px-8">
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 md:gap-8">
           {stats.map((stat, index) => (
             <motion.div
               key={stat.label}
@@ -21,12 +21,12 @@ export default function StatsSection() {
               transition={{ duration: 0.5, delay: index * 0.1 }}
               className="text-center"
             >
-              <div className={`inline-block ${stat.accent} border-[3px] border-foreground shadow-brutal px-6 py-4 mb-4`}>
-                <span className="text-4xl md:text-5xl lg:text-6xl font-bold text-primary-foreground">
+              <div className={`inline-block ${stat.accent} border-[2px] md:border-[3px] border-foreground shadow-brutal px-4 py-3 md:px-6 md:py-4 mb-3 md:mb-4`}>
+                <span className="text-2xl md:text-5xl lg:text-6xl font-bold text-primary-foreground">
                   {stat.value}
                 </span>
               </div>
-              <p className="text-sm md:text-base font-semibold uppercase tracking-wider">
+              <p className="text-xs md:text-base font-semibold uppercase tracking-wider leading-tight">
                 {stat.label}
               </p>
             </motion.div>
