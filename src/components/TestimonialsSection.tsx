@@ -40,9 +40,9 @@ function TestimonialCard({ testimonial, index }: { testimonial: typeof testimoni
       transition={{ duration: 0.5, delay: index * 0.1 }}
       className={`group ${testimonial.type === 'video' ? 'md:col-span-2' : ''}`}
     >
-      <div className="card-brutal h-full flex flex-col">
+      <div className="card-brutal h-full flex flex-col p-4 md:p-6">
         {testimonial.type === 'video' && (
-          <div className="relative mb-4 aspect-video border-[3px] border-foreground bg-muted overflow-hidden">
+          <div className="relative mb-3 md:mb-4 aspect-video border-[2px] md:border-[3px] border-foreground bg-muted overflow-hidden">
             {isVideoPlaying ? (
               <iframe
                 src={`${testimonial.videoUrl}?autoplay=1`}
@@ -55,8 +55,8 @@ function TestimonialCard({ testimonial, index }: { testimonial: typeof testimoni
                 onClick={() => setIsVideoPlaying(true)}
                 className="w-full h-full flex items-center justify-center bg-foreground/5 hover:bg-foreground/10 transition-colors"
               >
-                <div className="w-20 h-20 bg-primary border-[3px] border-foreground shadow-brutal flex items-center justify-center">
-                  <svg className="w-8 h-8 text-primary-foreground ml-1" fill="currentColor" viewBox="0 0 24 24">
+                <div className="w-14 h-14 md:w-20 md:h-20 bg-primary border-[2px] md:border-[3px] border-foreground shadow-brutal flex items-center justify-center">
+                  <svg className="w-6 h-6 md:w-8 md:h-8 text-primary-foreground ml-1" fill="currentColor" viewBox="0 0 24 24">
                     <path d="M8 5v14l11-7z" />
                   </svg>
                 </div>
@@ -65,17 +65,17 @@ function TestimonialCard({ testimonial, index }: { testimonial: typeof testimoni
           </div>
         )}
 
-        <blockquote className="text-lg md:text-xl mb-6 flex-1">
+        <blockquote className="text-base md:text-xl mb-4 md:mb-6 flex-1 leading-relaxed">
           "{testimonial.quote}"
         </blockquote>
 
-        <div className="flex items-center gap-4">
-          <div className="w-12 h-12 bg-accent border-[3px] border-foreground flex items-center justify-center font-bold text-accent-foreground">
+        <div className="flex items-center gap-3 md:gap-4">
+          <div className="w-10 h-10 md:w-12 md:h-12 bg-accent border-[2px] md:border-[3px] border-foreground flex items-center justify-center font-bold text-accent-foreground text-sm md:text-base">
             {testimonial.name.charAt(0)}
           </div>
           <div>
-            <p className="font-bold">{testimonial.name}</p>
-            <p className="text-sm text-muted-foreground">{testimonial.role}</p>
+            <p className="font-bold text-sm md:text-base">{testimonial.name}</p>
+            <p className="text-xs md:text-sm text-muted-foreground">{testimonial.role}</p>
           </div>
         </div>
       </div>
@@ -85,30 +85,30 @@ function TestimonialCard({ testimonial, index }: { testimonial: typeof testimoni
 
 export default function TestimonialsSection() {
   return (
-    <section id="testimonials" className="py-24 md:py-32 bg-secondary border-y-[3px] border-foreground">
-      <div className="container mx-auto px-4 sm:px-6 lg:px-8">
+    <section id="testimonials" className="py-16 md:py-32 bg-secondary border-y-[2px] md:border-y-[3px] border-foreground">
+      <div className="container mx-auto px-5 sm:px-6 lg:px-8">
         {/* Section Header */}
         <motion.div
           initial={{ opacity: 0, y: 50 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ duration: 0.6 }}
-          className="text-center mb-16"
+          className="text-center mb-10 md:mb-16"
         >
-          <span className="inline-block px-4 py-2 border-[3px] border-foreground bg-highlight text-foreground font-bold text-sm uppercase tracking-wider shadow-brutal mb-6">
+          <span className="inline-block px-3 py-1.5 md:px-4 md:py-2 border-[2px] md:border-[3px] border-foreground bg-highlight text-foreground font-bold text-xs md:text-sm uppercase tracking-wider shadow-brutal mb-4 md:mb-6">
             Real Results
           </span>
-          <h2 className="text-4xl md:text-5xl lg:text-6xl font-bold mb-6">
+          <h2 className="text-3xl md:text-5xl lg:text-6xl font-bold mb-4 md:mb-6">
             Don't take our word
-            <span className="block text-stroke">for it</span>
+            <span className="block text-stroke text-2xl md:text-5xl lg:text-6xl">for it</span>
           </h2>
-          <p className="text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto">
+          <p className="text-base md:text-xl text-muted-foreground max-w-2xl mx-auto">
             Here's what happens when you work with people who actually deliver.
           </p>
         </motion.div>
 
         {/* Testimonials Grid */}
-        <div className="grid md:grid-cols-2 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
           {testimonials.map((testimonial, index) => (
             <TestimonialCard key={testimonial.name} testimonial={testimonial} index={index} />
           ))}

@@ -65,30 +65,30 @@ const services = [
 
 export default function ServicesSection() {
   return (
-    <section id="what-we-do" className="py-24 md:py-32 overflow-hidden">
-      <div className="container mx-auto px-4 sm:px-6 lg:px-8">
+    <section id="what-we-do" className="py-16 md:py-32 overflow-hidden">
+      <div className="container mx-auto px-5 sm:px-6 lg:px-8">
         {/* Section Header */}
         <motion.div
           initial={{ opacity: 0, y: 50 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ duration: 0.6 }}
-          className="max-w-3xl mb-16"
+          className="max-w-3xl mb-10 md:mb-16"
         >
-          <span className="inline-block px-4 py-2 border-[3px] border-foreground bg-accent text-accent-foreground font-bold text-sm uppercase tracking-wider shadow-brutal mb-6">
+          <span className="inline-block px-3 py-1.5 md:px-4 md:py-2 border-[2px] md:border-[3px] border-foreground bg-accent text-accent-foreground font-bold text-xs md:text-sm uppercase tracking-wider shadow-brutal mb-4 md:mb-6">
             What we do
           </span>
-          <h2 className="text-4xl md:text-5xl lg:text-6xl font-bold mb-6">
+          <h2 className="text-3xl md:text-5xl lg:text-6xl font-bold mb-4 md:mb-6">
             Got a problem?
-            <span className="block text-stroke">We'll figure it out</span>
+            <span className="block text-stroke text-2xl md:text-5xl lg:text-6xl">We'll figure it out</span>
           </h2>
-          <p className="text-lg md:text-xl text-muted-foreground">
+          <p className="text-base md:text-xl text-muted-foreground">
             Name a tool, we build on it. Name a problem, we solve it. That's the FigOut way.
           </p>
         </motion.div>
 
         {/* Services Grid */}
-        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
           {services.map((service, index) => (
             <motion.div
               key={service.title}
@@ -99,16 +99,18 @@ export default function ServicesSection() {
               whileHover={{ x: 4, y: 4 }}
               className="group"
             >
-              <div className="card-brutal h-full transition-all duration-150 hover:shadow-none hover:translate-x-1 hover:translate-y-1">
-                <div className="flex items-start gap-4">
-                  <div className={`shrink-0 w-14 h-14 ${service.color} border-[3px] border-foreground flex items-center justify-center text-primary-foreground`}>
-                    {service.icon}
+              <div className="card-brutal h-full transition-all duration-150 hover:shadow-none hover:translate-x-1 hover:translate-y-1 p-4 md:p-6">
+                <div className="flex items-start gap-3 md:gap-4">
+                  <div className={`shrink-0 w-12 h-12 md:w-14 md:h-14 ${service.color} border-[2px] md:border-[3px] border-foreground flex items-center justify-center text-primary-foreground`}>
+                    <div className="w-6 h-6 md:w-8 md:h-8">
+                      {service.icon}
+                    </div>
                   </div>
-                  <div>
-                    <h3 className="text-xl md:text-2xl font-bold mb-2 group-hover:text-accent transition-colors">
+                  <div className="min-w-0 flex-1">
+                    <h3 className="text-lg md:text-2xl font-bold mb-1.5 md:mb-2 group-hover:text-accent transition-colors">
                       {service.title}
                     </h3>
-                    <p className="text-muted-foreground">
+                    <p className="text-sm md:text-base text-muted-foreground leading-relaxed">
                       {service.description}
                     </p>
                   </div>
