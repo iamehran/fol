@@ -1,5 +1,5 @@
 import { motion, useScroll, useTransform } from 'framer-motion';
-import { useState, useRef, useMemo } from 'react';
+import { useState, useRef, useMemo, useEffect } from 'react';
 import { BackgroundLines } from '@/components/ui/background-lines';
 
 // Import tool icons
@@ -51,12 +51,18 @@ interface ConstellationLine {
   delay: number;
 }
 
-function generateConstellationNodes(): ConstellationNode[] {
+function generateConstellationNodes(isMobile: boolean): ConstellationNode[] {
   const nodes: ConstellationNode[] = [];
   
-  // Strategic positions outside the red box (center exclusion: ~17%-83% X, ~8%-88% Y)
-  // Icons spread across left strip, right strip, top strip, bottom strip
-  const safePositions = [
+  // Different positions for mobile vs desktop
+  const safePositions = isMobile ? [
+    // Mobile: Only 4 corner icons, smaller and less intrusive
+    { x: 5, y: 5, size: 32 },
+    { x: 95, y: 5, size: 32 },
+    { x: 5, y: 95, size: 32 },
+    { x: 95, y: 95, size: 32 },
+  ] : [
+    // Desktop: Full constellation
     // LEFT STRIP (0-15% X)
     { x: 3, y: 8, size: 52 },
     { x: 2, y: 30, size: 56 },
@@ -111,10 +117,19 @@ function generateConstellationNodes(): ConstellationNode[] {
 }
 
 // Create specific connections for a network look
-function generateConstellationLines(nodes: ConstellationNode[]): ConstellationLine[] {
+function generateConstellationLines(nodes: ConstellationNode[], isMobile: boolean): ConstellationLine[] {
   const lines: ConstellationLine[] = [];
   
-  // Manual connections for clean network look
+  if (isMobile) {
+    // Mobile: minimal connections - just corners
+    if (nodes.length >= 4) {
+      lines.push({ id: 'M1', from: 0, to: 1, delay: 0.1 }); // top line
+      lines.push({ id: 'M2', from: 2, to: 3, delay: 0.2 }); // bottom line
+    }
+    return lines;
+  }
+  
+  // Desktop: Manual connections for clean network look
   // Left strip connections (vertical chain)
   const leftNodes = [0, 1, 2, 3, 4];
   for (let i = 0; i < leftNodes.length - 1; i++) {
@@ -192,8 +207,17 @@ function ConstellationIcon({ node, index }: { node: ConstellationNode; index: nu
 }
 
 function ConstellationField() {
-  const nodes = useMemo(() => generateConstellationNodes(), []);
-  const lines = useMemo(() => generateConstellationLines(nodes), [nodes]);
+  const [isMobile, setIsMobile] = useState(false);
+  
+  useEffect(() => {
+    const checkMobile = () => setIsMobile(window.innerWidth < 768);
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
+  
+  const nodes = useMemo(() => generateConstellationNodes(isMobile), [isMobile]);
+  const lines = useMemo(() => generateConstellationLines(nodes, isMobile), [nodes, isMobile]);
   
   return (
     <div className="absolute inset-0 overflow-hidden">
@@ -305,12 +329,14 @@ export default function HeroSection() {
   };
 
   return (
-    <section ref={sectionRef} className="relative min-h-screen flex items-center justify-center overflow-hidden pt-20 bg-background">
-      {/* Background Lines Animation Layer */}
-      <BackgroundLines 
-        className="absolute inset-0 z-0" 
-        svgOptions={{ duration: 8 }}
-      />
+    <section ref={sectionRef} className="relative min-h-screen flex items-center justify-center overflow-hidden pt-24 md:pt-20 pb-8 md:pb-0 bg-background">
+      {/* Background Lines Animation Layer - Hidden on mobile */}
+      <div className="hidden md:block">
+        <BackgroundLines 
+          className="absolute inset-0 z-0" 
+          svgOptions={{ duration: 8 }}
+        />
+      </div>
       
       {/* Creative Background */}
       <div className="absolute inset-0 z-[1]">
@@ -319,22 +345,22 @@ export default function HeroSection() {
         <div className="absolute inset-0 bg-[radial-gradient(ellipse_60%_60%_at_100%_100%,hsl(var(--accent)/0.08),transparent)]" />
         <div className="absolute inset-0 bg-[radial-gradient(ellipse_40%_40%_at_0%_50%,hsl(var(--highlight)/0.06),transparent)]" />
         
-        {/* Subtle grid */}
-        <div className="absolute inset-0 bg-[linear-gradient(to_right,hsl(var(--foreground)/0.02)_1px,transparent_1px),linear-gradient(to_bottom,hsl(var(--foreground)/0.02)_1px,transparent_1px)] bg-[size:80px_80px]" />
+        {/* Subtle grid - Larger on mobile */}
+        <div className="absolute inset-0 bg-[linear-gradient(to_right,hsl(var(--foreground)/0.02)_1px,transparent_1px),linear-gradient(to_bottom,hsl(var(--foreground)/0.02)_1px,transparent_1px)] bg-[size:40px_40px] md:bg-[size:80px_80px]" />
         
-        {/* Floating shapes */}
+        {/* Floating shapes - Smaller on mobile */}
         <motion.div 
-          className="absolute top-[15%] left-[10%] w-32 h-32 bg-primary/10 rounded-full blur-3xl"
+          className="absolute top-[15%] left-[10%] w-16 md:w-32 h-16 md:h-32 bg-primary/10 rounded-full blur-2xl md:blur-3xl"
           animate={{ y: [0, -30, 0], x: [0, 15, 0] }}
           transition={{ duration: 8, repeat: Infinity, ease: "easeInOut" }}
         />
         <motion.div 
-          className="absolute bottom-[20%] right-[15%] w-40 h-40 bg-accent/10 rounded-full blur-3xl"
+          className="absolute bottom-[20%] right-[15%] w-20 md:w-40 h-20 md:h-40 bg-accent/10 rounded-full blur-2xl md:blur-3xl"
           animate={{ y: [0, 20, 0], x: [0, -20, 0] }}
           transition={{ duration: 10, repeat: Infinity, ease: "easeInOut" }}
         />
         <motion.div 
-          className="absolute top-[40%] right-[8%] w-24 h-24 bg-highlight/10 rounded-full blur-2xl"
+          className="absolute top-[40%] right-[8%] w-12 md:w-24 h-12 md:h-24 bg-highlight/10 rounded-full blur-xl md:blur-2xl"
           animate={{ y: [0, 25, 0] }}
           transition={{ duration: 6, repeat: Infinity, ease: "easeInOut" }}
         />
@@ -349,17 +375,17 @@ export default function HeroSection() {
       </motion.div>
       
       {/* Content */}
-      <div className="relative z-10 container mx-auto px-4 sm:px-6 lg:px-8">
+      <div className="relative z-10 container mx-auto px-6 sm:px-6 lg:px-8">
         <div className="max-w-4xl mx-auto text-center">
           {/* Main Heading */}
           <motion.h1
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 0.1 }}
-            className="text-5xl sm:text-6xl md:text-7xl lg:text-8xl font-bold leading-[0.9] mb-6 relative"
+            className="text-3xl sm:text-5xl md:text-6xl lg:text-8xl font-bold leading-[1] sm:leading-[0.9] mb-4 md:mb-6 relative"
           >
             <span className="block">Not an Agency.</span>
-            <span className="block">
+            <span className="block mt-1 sm:mt-0">
               We Are{' '}
               <span 
                 ref={buildersRef}
@@ -368,10 +394,10 @@ export default function HeroSection() {
                 onMouseLeave={() => setIsHoveringBuilders(false)}
                 onMouseMove={(e) => handleMouseMove(e, buildersRef, setMouseX)}
               >
-                <span className="bg-accent text-accent-foreground px-3 py-1 inline-block transform -rotate-1">
+                <span className="bg-accent text-accent-foreground px-2 sm:px-3 py-1 inline-block transform -rotate-1">
                   Builders
                 </span>
-                {/* Cat typing gif on hover - follows mouse */}
+                {/* Cat typing gif on hover - follows mouse - Hidden on mobile */}
                 {isHoveringBuilders && (
                   <motion.div
                     initial={{ opacity: 0, scale: 0.8, y: 10 }}
@@ -386,7 +412,7 @@ export default function HeroSection() {
                       scale: { duration: 0.2 },
                       x: { duration: 0.1, ease: "easeOut" }
                     }}
-                    className="absolute -top-40 left-1/2 -translate-x-1/2 z-50 pointer-events-none"
+                    className="hidden md:block absolute -top-40 left-1/2 -translate-x-1/2 z-50 pointer-events-none"
                   >
                     <img 
                       src={catTypingGif} 
@@ -406,8 +432,8 @@ export default function HeroSection() {
             transition={{ duration: 0.6, delay: 0.2 }}
             className="relative"
           >
-            <p className="text-lg sm:text-xl md:text-2xl text-muted-foreground max-w-3xl mx-auto mb-4">
-              <span className="bg-background/80 px-4 py-2 inline-block backdrop-blur-sm border-[2px] border-foreground/10">
+            <p className="text-sm sm:text-lg md:text-xl lg:text-2xl text-muted-foreground max-w-3xl mx-auto mb-3 md:mb-4">
+              <span className="bg-background/80 px-3 sm:px-4 py-2 inline-block backdrop-blur-sm border-[2px] border-foreground/10">
                 We ship real systems that create value. No corporate speak, no endless meetings.
                 <br />
                 <span className="text-foreground font-semibold">
@@ -434,7 +460,7 @@ export default function HeroSection() {
                           scale: { duration: 0.2 },
                           x: { duration: 0.1, ease: "easeOut" }
                         }}
-                        className="absolute bottom-[90%] left-1/3 -translate-x-1/2 z-50 pointer-events-none"
+                        className="hidden md:block absolute bottom-[90%] left-1/3 -translate-x-1/2 z-50 pointer-events-none"
                       >
                         <img 
                           src={fireBlazeGif} 
@@ -450,7 +476,7 @@ export default function HeroSection() {
             </p>
             
             {/* New subheadline */}
-            <p className="text-base sm:text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto mb-10">
+            <p className="text-xs sm:text-base md:text-lg lg:text-xl text-muted-foreground max-w-2xl mx-auto mb-6 md:mb-10">
               <span className="italic">
                 We may not be the experts, but we know one thing —{' '}
                 <span 
@@ -475,7 +501,7 @@ export default function HeroSection() {
                         scale: { duration: 0.2 },
                         x: { duration: 0.1, ease: "easeOut" }
                       }}
-                      className="absolute -top-36 left-1/2 -translate-x-1/2 z-50 pointer-events-none"
+                      className="hidden md:block absolute -top-36 left-1/2 -translate-x-1/2 z-50 pointer-events-none"
                     >
                       <img 
                         src="https://media.giphy.com/media/d3mlE7uhX8KFgEmY/giphy.gif" 
@@ -500,11 +526,11 @@ export default function HeroSection() {
               href="https://calendar.app.google/XmdUw45c77LS4o417"
               target="_blank"
               rel="noopener noreferrer"
-              className="btn-brutal-primary text-lg px-8 py-4 inline-flex items-center gap-3 group"
+              className="btn-brutal-primary text-base sm:text-lg px-6 sm:px-8 py-3 sm:py-4 inline-flex items-center gap-2 sm:gap-3 group"
             >
               Book a call
               <svg 
-                className="w-5 h-5 transition-transform group-hover:translate-x-1" 
+                className="w-4 h-4 sm:w-5 sm:h-5 transition-transform group-hover:translate-x-1" 
                 fill="none" 
                 stroke="currentColor" 
                 viewBox="0 0 24 24"

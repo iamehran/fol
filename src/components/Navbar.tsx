@@ -130,7 +130,7 @@ export default function Navbar() {
         </motion.div>
       </motion.nav>
 
-      {/* Floating Sticky CTA - Appears on scroll */}
+      {/* Floating Sticky CTA - Appears on scroll - HIDDEN ON MOBILE */}
       <AnimatePresence>
         {showFloatingCTA && !floatingDismissed && (
           <motion.div
@@ -143,7 +143,7 @@ export default function Navbar() {
               damping: 25,
               mass: 0.8,
             }}
-            className="fixed right-4 md:right-6 top-4 md:top-6 z-[100] flex flex-col items-center gap-4 bg-foreground border-[3px] border-background p-5"
+            className="hidden md:flex fixed right-6 top-6 z-[100] flex-col items-center gap-4 bg-foreground border-[3px] border-background p-5"
             style={{ boxShadow: '6px 6px 0px hsl(var(--background))' }}
           >
             {/* Close button */}
