@@ -7,6 +7,7 @@ const features = [
     title: 'Discovery',
     description: 'We dig into your problem. Understand your workflow, identify bottlenecks, map out opportunities.',
     accent: 'bg-primary',
+    accentColor: 'hsl(75 100% 50%)',
     icon: '🔍',
   },
   {
@@ -14,6 +15,7 @@ const features = [
     title: 'Strategy',
     description: 'No fluff. We build a clear roadmap with the right tools - n8n, Zapier, Make, or custom solutions.',
     accent: 'bg-accent',
+    accentColor: 'hsl(330 100% 60%)',
     icon: '🧭',
   },
   {
@@ -21,6 +23,7 @@ const features = [
     title: 'Build',
     description: 'We ship fast. Clean automations, production-ready code, systems that actually work.',
     accent: 'bg-highlight',
+    accentColor: 'hsl(200 100% 50%)',
     icon: '⚡',
   },
   {
@@ -28,49 +31,10 @@ const features = [
     title: 'Optimize',
     description: 'Launch is just the start. We monitor, tweak, and scale until the results speak for themselves.',
     accent: 'bg-primary',
+    accentColor: 'hsl(75 100% 50%)',
     icon: '🚀',
   },
 ];
-
-// Clean arrow connector between steps
-function StepConnector({ index }: { index: number }) {
-  const ref = useRef<HTMLDivElement>(null);
-  const { scrollYProgress } = useScroll({
-    target: ref,
-    offset: ["start end", "end center"]
-  });
-
-  const scaleY = useTransform(scrollYProgress, [0, 1], [0, 1]);
-  const arrowOpacity = useTransform(scrollYProgress, [0.7, 1], [0, 1]);
-
-  const colors = ["hsl(75 100% 50%)", "hsl(330 100% 60%)", "hsl(200 100% 50%)"];
-  const color = colors[index % colors.length];
-
-  return (
-    <div ref={ref} className="relative h-12 md:h-20 flex items-center justify-center">
-      {/* Vertical line */}
-      <div className="relative w-[3px] h-full bg-foreground/10 rounded-full overflow-hidden">
-        <motion.div 
-          className="absolute top-0 left-0 w-full rounded-full origin-top"
-          style={{ 
-            scaleY, 
-            height: '100%',
-            backgroundColor: color,
-          }}
-        />
-      </div>
-      {/* Arrow head */}
-      <motion.div 
-        className="absolute bottom-0 left-1/2 -translate-x-1/2 translate-y-1/2"
-        style={{ opacity: arrowOpacity }}
-      >
-        <svg width="16" height="10" viewBox="0 0 16 10" fill="none">
-          <path d="M1 1L8 8L15 1" stroke={color} strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" />
-        </svg>
-      </motion.div>
-    </div>
-  );
-}
 
 function FeatureCard({ feature, index }: { feature: typeof features[0]; index: number }) {
   const ref = useRef<HTMLDivElement>(null);
@@ -79,64 +43,95 @@ function FeatureCard({ feature, index }: { feature: typeof features[0]; index: n
     offset: ["start end", "center center"]
   });
 
-  const opacity = useTransform(scrollYProgress, [0, 0.5], [0.3, 1]);
-  const scale = useTransform(scrollYProgress, [0, 0.5], [0.95, 1]);
-  const x = useTransform(scrollYProgress, [0, 0.5], [index % 2 === 0 ? -30 : 30, 0]);
+  const opacity = useTransform(scrollYProgress, [0, 0.5], [0.2, 1]);
+  const y = useTransform(scrollYProgress, [0, 0.5], [40, 0]);
 
   return (
-    <motion.div
-      ref={ref}
-      style={{ opacity, scale, x }}
-      className="relative"
-    >
-      {/* Main card */}
-      <div className={`relative flex flex-row items-start gap-4 md:gap-8 p-4 md:p-8 bg-background border-[2px] md:border-[3px] border-foreground shadow-brutal`}>
-        {/* Number badge */}
-        <div className="relative shrink-0">
-          <div className={`w-14 h-14 md:w-20 md:h-20 ${feature.accent} border-[2px] md:border-[3px] border-foreground shadow-brutal flex items-center justify-center`}>
-            <span className="text-xl md:text-3xl font-bold text-primary-foreground">
-              {feature.number}
-            </span>
-          </div>
-          {/* Floating emoji */}
-          <motion.span
-            className="absolute -top-2 -right-2 md:-top-3 md:-right-3 text-lg md:text-2xl"
-            animate={{ y: [0, -5, 0], rotate: [0, 10, -10, 0] }}
-            transition={{ duration: 3, repeat: Infinity, ease: "easeInOut", delay: index * 0.5 }}
+    <div ref={ref} className="relative">
+      {/* Arrow connector ABOVE the card (skip first) */}
+      {index > 0 && (
+        <div className="flex justify-center py-3 md:py-5">
+          <motion.div
+            className="flex flex-col items-center gap-0"
+            initial={{ opacity: 0 }}
+            whileInView={{ opacity: 1 }}
+            viewport={{ once: true, margin: "-50px" }}
+            transition={{ duration: 0.4, delay: 0.2 }}
           >
-            {feature.icon}
-          </motion.span>
+            {/* Dashed line */}
+            <motion.div 
+              className="w-[3px] h-8 md:h-14"
+              style={{ 
+                backgroundImage: `repeating-linear-gradient(to bottom, ${features[index - 1].accentColor} 0px, ${features[index - 1].accentColor} 6px, transparent 6px, transparent 12px)`,
+              }}
+              initial={{ scaleY: 0 }}
+              whileInView={{ scaleY: 1 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.5, delay: 0.1 }}
+            />
+            {/* Arrow triangle */}
+            <svg width="20" height="12" viewBox="0 0 20 12" className="-mt-[1px]">
+              <polygon 
+                points="10,12 0,0 20,0" 
+                fill={features[index - 1].accentColor}
+              />
+            </svg>
+          </motion.div>
         </div>
+      )}
 
-        {/* Content */}
-        <div className="flex-1 min-w-0">
-          <h3 className="text-xl md:text-3xl lg:text-4xl font-bold mb-2 md:mb-3">
-            {feature.title}
-          </h3>
-          <p className="text-sm md:text-lg text-muted-foreground max-w-md leading-relaxed">
-            {feature.description}
-          </p>
+      {/* Card */}
+      <motion.div
+        style={{ opacity, y }}
+        className="relative group"
+      >
+        <div className="relative p-5 md:p-8 bg-background border-[2px] md:border-[3px] border-foreground shadow-brutal">
+          {/* Top bar accent */}
+          <div className={`absolute top-0 left-0 right-0 h-[4px] md:h-[5px] ${feature.accent}`} />
+          
+          <div className="flex items-start gap-4 md:gap-6">
+            {/* Number + icon */}
+            <div className="relative shrink-0">
+              <div className={`w-14 h-14 md:w-[72px] md:h-[72px] ${feature.accent} border-[2px] md:border-[3px] border-foreground flex items-center justify-center`}
+                style={{ boxShadow: '4px 4px 0px hsl(var(--foreground))' }}
+              >
+                <span className="text-xl md:text-3xl font-black text-foreground">
+                  {feature.number}
+                </span>
+              </div>
+              <motion.span
+                className="absolute -top-3 -right-3 text-lg md:text-xl"
+                animate={{ y: [0, -4, 0] }}
+                transition={{ duration: 2.5, repeat: Infinity, ease: "easeInOut", delay: index * 0.4 }}
+              >
+                {feature.icon}
+              </motion.span>
+            </div>
+
+            {/* Text */}
+            <div className="flex-1 min-w-0 pt-1">
+              <h3 className="text-xl md:text-2xl lg:text-3xl font-black mb-1.5 md:mb-2 tracking-tight">
+                {feature.title}
+              </h3>
+              <p className="text-sm md:text-base text-muted-foreground leading-relaxed max-w-lg">
+                {feature.description}
+              </p>
+            </div>
+          </div>
+
+          {/* Corner square accent */}
+          <div 
+            className={`absolute -bottom-[6px] -right-[6px] w-3 h-3 md:w-4 md:h-4 ${feature.accent} border-[2px] border-foreground`}
+          />
         </div>
-
-        {/* Decorative corner accent */}
-        <div className={`absolute -top-1 -right-1 w-4 h-4 md:w-6 md:h-6 ${feature.accent} border-[2px] border-foreground hidden md:block`} />
-      </div>
-    </motion.div>
+      </motion.div>
+    </div>
   );
 }
 
 export default function ScrollSection() {
-  const containerRef = useRef<HTMLDivElement>(null);
-  const { scrollYProgress } = useScroll({
-    target: containerRef,
-    offset: ["start end", "end start"]
-  });
-
-  // Vertical progress line
-  const lineHeight = useTransform(scrollYProgress, [0.1, 0.85], ["0%", "100%"]);
-
   return (
-    <section ref={containerRef} className="py-16 md:py-32 relative overflow-hidden">
+    <section className="py-16 md:py-32 relative overflow-hidden">
       <div className="container mx-auto px-5 sm:px-6 lg:px-8">
         {/* Section Header */}
         <motion.div
@@ -155,22 +150,10 @@ export default function ScrollSection() {
           </h2>
         </motion.div>
 
-        {/* Steps with connectors */}
-        <div className="max-w-2xl mx-auto relative">
-          {/* Background progress line */}
-          <div className="absolute left-1/2 top-0 bottom-0 w-[2px] bg-foreground/5 -translate-x-1/2 hidden md:block" />
-          <motion.div 
-            className="absolute left-1/2 top-0 w-[2px] bg-primary -translate-x-1/2 origin-top hidden md:block"
-            style={{ height: lineHeight }}
-          />
-          
+        {/* Steps */}
+        <div className="max-w-2xl mx-auto">
           {features.map((feature, index) => (
-            <div key={feature.number}>
-              <FeatureCard feature={feature} index={index} />
-              {index < features.length - 1 && (
-                <StepConnector index={index} />
-              )}
-            </div>
+            <FeatureCard key={feature.number} feature={feature} index={index} />
           ))}
         </div>
       </div>
