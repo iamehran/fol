@@ -241,16 +241,18 @@ function IconInfoPopup({
   position: { x: number; y: number }; 
   onClose: () => void;
 }) {
-  // Determine popup position to stay in viewport
+  // Clamp popup so it never clips outside viewport
+  const popupLeft = position.x > 65 ? Math.max(2, position.x - 2) : Math.min(position.x + 2, 70);
+  const popupTop = position.y > 60 ? Math.max(2, position.y - 5) : Math.min(position.y + 5, 65);
   const popupStyle: React.CSSProperties = {
-    left: position.x > 65 ? `${position.x - 2}%` : `${position.x + 2}%`,
-    top: position.y > 60 ? `${position.y - 5}%` : `${position.y + 5}%`,
+    left: `${popupLeft}%`,
+    top: `${popupTop}%`,
     transform: position.x > 65 ? 'translateX(-100%)' : 'translateX(0)',
   };
 
   return (
     <motion.div
-      className="absolute z-50 w-64 md:w-80"
+      className="absolute z-[100] w-64 md:w-80"
       style={popupStyle}
       initial={{ opacity: 0, scale: 0.8, y: 10 }}
       animate={{ opacity: 1, scale: 1, y: 0 }}
