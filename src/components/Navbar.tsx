@@ -46,7 +46,11 @@ export default function Navbar() {
                   href={link.href}
                   onClick={(e) => {
                     e.preventDefault();
-                    document.querySelector(link.href)?.scrollIntoView({ behavior: 'smooth' });
+                    if (link.href.startsWith('/')) {
+                      navigate(link.href);
+                    } else {
+                      document.querySelector(link.href)?.scrollIntoView({ behavior: 'smooth' });
+                    }
                   }}
                   className="text-background/80 hover:text-background text-sm font-medium transition-colors duration-200"
                 >
