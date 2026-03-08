@@ -168,7 +168,7 @@ export default function ScrollSection() {
             <div key={feature.number}>
               <FeatureCard feature={feature} index={index} />
               {index < features.length - 1 && (
-                <StepConnector index={index} accent={feature.accent} />
+                <StepConnector index={index} />
               )}
             </div>
           ))}
