@@ -484,6 +484,7 @@ export default function HeroSection() {
   const [isHoveringBuilders, setIsHoveringBuilders] = useState(false);
   const [isHoveringProblem, setIsHoveringProblem] = useState(false);
   const [isHoveringFigure, setIsHoveringFigure] = useState(false);
+  const [popupActive, setPopupActive] = useState(false);
   const [mouseX, setMouseX] = useState(0);
   const [problemMouseX, setProblemMouseX] = useState(0);
   const [figureMouseX, setFigureMouseX] = useState(0);
@@ -539,12 +540,12 @@ export default function HeroSection() {
         />
       </div>
       
-      {/* Constellation Field */}
+      {/* Constellation Field - z-index toggles above content when popup is active */}
       <motion.div 
-        className="absolute inset-0 z-[2]"
+        className={`absolute inset-0 ${popupActive ? 'z-[20]' : 'z-[2]'}`}
         style={{ y: orbitY }}
       >
-        <ConstellationField />
+        <ConstellationField onActiveChange={setPopupActive} />
       </motion.div>
       
       {/* Content */}
