@@ -113,58 +113,6 @@ export default function Navbar() {
           </div>
         </motion.div>
       </motion.nav>
-
-      {/* Floating Sticky CTA - Appears on scroll - HIDDEN ON MOBILE */}
-      <AnimatePresence>
-        {showFloatingCTA && !floatingDismissed && (
-          <motion.div
-            initial={{ scale: 0.3, opacity: 0, y: -50, x: 50 }}
-            animate={{ scale: 1, opacity: 1, y: 0, x: 0 }}
-            exit={{ scale: 0.3, opacity: 0, y: -50, x: 50 }}
-            transition={{
-              type: 'spring',
-              stiffness: 400,
-              damping: 25,
-              mass: 0.8,
-            }}
-            className="hidden md:flex fixed right-6 top-6 z-[100] flex-col items-center gap-4 bg-foreground border-[3px] border-background p-5"
-            style={{ boxShadow: '6px 6px 0px hsl(var(--background))' }}
-          >
-            {/* Close button */}
-            <button
-              onClick={handleDismissFloating}
-              className="absolute -top-2 -left-2 w-6 h-6 bg-background text-foreground flex items-center justify-center border-[2px] border-foreground hover:bg-primary hover:text-foreground transition-colors"
-              aria-label="Close"
-            >
-              <X className="w-3 h-3" />
-            </button>
-
-            {/* Logo with animation */}
-            <motion.img
-              src={figoutLogo}
-              alt="FigOut Labs"
-              className="h-14 w-auto"
-              initial={{ scale: 0, rotate: -10 }}
-              animate={{ scale: 1, rotate: 0 }}
-              transition={{ delay: 0.1, type: 'spring', stiffness: 300 }}
-            />
-
-            {/* Book a call button */}
-            <motion.a
-              href="https://calendar.app.google/XmdUw45c77LS4o417"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="btn-brutal-primary text-xs whitespace-nowrap"
-              style={{ boxShadow: '3px 3px 0px hsl(var(--accent))' }}
-              initial={{ y: 10, opacity: 0 }}
-              animate={{ y: 0, opacity: 1 }}
-              transition={{ delay: 0.2 }}
-            >
-              Book a call
-            </motion.a>
-          </motion.div>
-        )}
-      </AnimatePresence>
     </>
   );
 }
