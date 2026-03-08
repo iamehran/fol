@@ -6,7 +6,7 @@ import figoutLogo from '@/assets/figout-logo-new.png';
 const navLinks = [
   { href: '#what-we-do', label: 'What we do' },
   { href: '#testimonials', label: 'Testimonials' },
-  { href: '#manifesto', label: 'Manifesto' },
+  { href: '/manifesto', label: 'Manifesto' },
 ];
 
 export default function Navbar() {
