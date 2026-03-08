@@ -241,16 +241,18 @@ function IconInfoPopup({
   position: { x: number; y: number }; 
   onClose: () => void;
 }) {
-  // Determine popup position to stay in viewport
+  // Clamp popup so it never clips outside viewport
+  const popupLeft = position.x > 65 ? Math.max(2, position.x - 2) : Math.min(position.x + 2, 70);
+  const popupTop = position.y > 60 ? Math.max(2, position.y - 5) : Math.min(position.y + 5, 65);
   const popupStyle: React.CSSProperties = {
-    left: position.x > 65 ? `${position.x - 2}%` : `${position.x + 2}%`,
-    top: position.y > 60 ? `${position.y - 5}%` : `${position.y + 5}%`,
+    left: `${popupLeft}%`,
+    top: `${popupTop}%`,
     transform: position.x > 65 ? 'translateX(-100%)' : 'translateX(0)',
   };
 
   return (
     <motion.div
-      className="absolute z-50 w-64 md:w-80"
+      className="absolute z-[100] w-64 md:w-80"
       style={popupStyle}
       initial={{ opacity: 0, scale: 0.8, y: 10 }}
       animate={{ opacity: 1, scale: 1, y: 0 }}
@@ -364,7 +366,7 @@ function ConstellationIcon({
   );
 }
 
-function ConstellationField() {
+function ConstellationField({ onActiveChange }: { onActiveChange?: (active: boolean) => void }) {
   const [isMobile, setIsMobile] = useState(false);
   const [activeNode, setActiveNode] = useState<number | null>(null);
   
@@ -379,15 +381,18 @@ function ConstellationField() {
   const lines = useMemo(() => generateConstellationLines(nodes, isMobile), [nodes, isMobile]);
   
   const handleIconClick = (nodeId: number) => {
-    setActiveNode(activeNode === nodeId ? null : nodeId);
+    const newActive = activeNode === nodeId ? null : nodeId;
+    setActiveNode(newActive);
+    onActiveChange?.(newActive !== null);
   };
 
   const handleBackgroundClick = () => {
     setActiveNode(null);
+    onActiveChange?.(false);
   };
   
   return (
-    <div className="absolute inset-0 overflow-hidden" onClick={handleBackgroundClick}>
+    <div className="absolute inset-0" onClick={handleBackgroundClick}>
       {/* Connecting Lines */}
       <svg className="absolute inset-0 w-full h-full pointer-events-none">
         {lines.map((line) => {
@@ -479,6 +484,7 @@ export default function HeroSection() {
   const [isHoveringBuilders, setIsHoveringBuilders] = useState(false);
   const [isHoveringProblem, setIsHoveringProblem] = useState(false);
   const [isHoveringFigure, setIsHoveringFigure] = useState(false);
+  const [popupActive, setPopupActive] = useState(false);
   const [mouseX, setMouseX] = useState(0);
   const [problemMouseX, setProblemMouseX] = useState(0);
   const [figureMouseX, setFigureMouseX] = useState(0);
@@ -534,12 +540,12 @@ export default function HeroSection() {
         />
       </div>
       
-      {/* Constellation Field */}
+      {/* Constellation Field - z-index toggles above content when popup is active */}
       <motion.div 
-        className="absolute inset-0 z-[2]"
+        className={`absolute inset-0 ${popupActive ? 'z-[20]' : 'z-[2]'}`}
         style={{ y: orbitY }}
       >
-        <ConstellationField />
+        <ConstellationField onActiveChange={setPopupActive} />
       </motion.div>
       
       {/* Content */}
