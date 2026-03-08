@@ -241,17 +241,44 @@ function IconInfoPopup({
   position: { x: number; y: number }; 
   onClose: () => void;
 }) {
-  // Smart positioning: open popup away from edges
+  // Smart positioning: open popup away from edges, clamped to stay within bounds
   const isRight = position.x > 60;
   const isBottom = position.y > 55;
   
+  // For right-side icons, position popup to end well within bounds
+  // For left-side icons, position popup starting from icon
+  let left: string;
+  let translateX: string;
+  
+  if (isRight) {
+    // Anchor right edge of popup at the icon, but clamp so left edge doesn't go off-screen
+    const anchorX = Math.min(position.x - 2, 98);
+    left = `${anchorX}%`;
+    translateX = 'translateX(-100%)';
+  } else {
+    const anchorX = Math.max(position.x + 2, 2);
+    left = `${anchorX}%`;
+    translateX = 'translateX(0)';
+  }
+  
+  let top: string;
+  let translateY: string;
+  
+  if (isBottom) {
+    const anchorY = Math.min(position.y - 2, 98);
+    top = `${anchorY}%`;
+    translateY = 'translateY(-100%)';
+  } else {
+    const anchorY = Math.max(position.y + 2, 2);
+    top = `${anchorY}%`;
+    translateY = 'translateY(0)';
+  }
+
   const popupStyle: React.CSSProperties = {
-    left: isRight ? `${position.x - 2}%` : `${position.x + 2}%`,
-    top: isBottom ? `${position.y - 2}%` : `${position.y + 2}%`,
-    transform: [
-      isRight ? 'translateX(-100%)' : 'translateX(0)',
-      isBottom ? 'translateY(-100%)' : 'translateY(0)',
-    ].join(' '),
+    left,
+    top,
+    transform: `${translateX} ${translateY}`,
+    maxWidth: 'calc(100% - 16px)',
   };
 
   return (
