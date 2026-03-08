@@ -100,7 +100,11 @@ export default function Navbar() {
                 onClick={(e) => {
                   e.preventDefault();
                   setIsOpen(false);
-                  document.querySelector(link.href)?.scrollIntoView({ behavior: 'smooth' });
+                  if (link.href.startsWith('/')) {
+                    navigate(link.href);
+                  } else {
+                    document.querySelector(link.href)?.scrollIntoView({ behavior: 'smooth' });
+                  }
                 }}
                 className="text-foreground/80 hover:text-foreground text-base font-medium transition-colors"
               >
