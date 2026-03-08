@@ -381,11 +381,14 @@ function ConstellationField({ onActiveChange }: { onActiveChange?: (active: bool
   const lines = useMemo(() => generateConstellationLines(nodes, isMobile), [nodes, isMobile]);
   
   const handleIconClick = (nodeId: number) => {
-    setActiveNode(activeNode === nodeId ? null : nodeId);
+    const newActive = activeNode === nodeId ? null : nodeId;
+    setActiveNode(newActive);
+    onActiveChange?.(newActive !== null);
   };
 
   const handleBackgroundClick = () => {
     setActiveNode(null);
+    onActiveChange?.(false);
   };
   
   return (
