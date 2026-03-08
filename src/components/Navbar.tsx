@@ -11,22 +11,6 @@ const navLinks = [
 
 export default function Navbar() {
   const [isOpen, setIsOpen] = useState(false);
-  const [showFloatingCTA, setShowFloatingCTA] = useState(false);
-  const [floatingDismissed, setFloatingDismissed] = useState(false);
-
-  useEffect(() => {
-    const handleScroll = () => {
-      if (floatingDismissed) return;
-      setShowFloatingCTA(window.scrollY > 200);
-    };
-    window.addEventListener('scroll', handleScroll);
-    return () => window.removeEventListener('scroll', handleScroll);
-  }, [floatingDismissed]);
-
-  const handleDismissFloating = () => {
-    setFloatingDismissed(true);
-    setShowFloatingCTA(false);
-  };
 
   return (
     <>
