@@ -389,7 +389,7 @@ function ConstellationField() {
   };
   
   return (
-    <div className="absolute inset-0 overflow-hidden" onClick={handleBackgroundClick}>
+    <div className="absolute inset-0" onClick={handleBackgroundClick}>
       {/* Connecting Lines */}
       <svg className="absolute inset-0 w-full h-full pointer-events-none">
         {lines.map((line) => {
