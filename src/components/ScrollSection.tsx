@@ -32,80 +32,42 @@ const features = [
   },
 ];
 
-// Animated arrow connector between steps
-function StepConnector({ index, accent }: { index: number; accent: string }) {
+// Clean arrow connector between steps
+function StepConnector({ index }: { index: number }) {
   const ref = useRef<HTMLDivElement>(null);
   const { scrollYProgress } = useScroll({
     target: ref,
     offset: ["start end", "end center"]
   });
 
-  const pathLength = useTransform(scrollYProgress, [0, 1], [0, 1]);
-  const dotScale = useTransform(scrollYProgress, [0.6, 1], [0, 1]);
+  const scaleY = useTransform(scrollYProgress, [0, 1], [0, 1]);
+  const arrowOpacity = useTransform(scrollYProgress, [0.7, 1], [0, 1]);
 
-  // Alternate directions for visual flow
-  const isEven = index % 2 === 0;
+  const colors = ["hsl(75 100% 50%)", "hsl(330 100% 60%)", "hsl(200 100% 50%)"];
+  const color = colors[index % colors.length];
 
   return (
-    <div ref={ref} className="relative h-16 md:h-24 flex items-center justify-center overflow-visible">
-      <svg 
-        className="w-full h-full overflow-visible" 
-        viewBox="0 0 400 80" 
-        fill="none" 
-        preserveAspectRatio="none"
-      >
-        {/* Main flow path - curved arrow */}
-        <motion.path
-          d={isEven 
-            ? "M 200 0 C 200 20, 260 30, 280 40 C 300 50, 240 60, 200 80" 
-            : "M 200 0 C 200 20, 140 30, 120 40 C 100 50, 160 60, 200 80"
-          }
-          stroke="hsl(var(--foreground))"
-          strokeWidth="3"
-          strokeDasharray="8 6"
-          fill="none"
-          style={{ pathLength }}
-          initial={{ pathLength: 0 }}
-        />
-        
-        {/* Glowing accent path overlay */}
-        <motion.path
-          d={isEven 
-            ? "M 200 0 C 200 20, 260 30, 280 40 C 300 50, 240 60, 200 80" 
-            : "M 200 0 C 200 20, 140 30, 120 40 C 100 50, 160 60, 200 80"
-          }
-          stroke={index === 0 ? "hsl(75 100% 50%)" : index === 1 ? "hsl(330 100% 60%)" : "hsl(200 100% 50%)"}
-          strokeWidth="2"
-          strokeDasharray="4 12"
-          fill="none"
-          style={{ pathLength }}
-          initial={{ pathLength: 0 }}
-          opacity={0.6}
-        />
-
-        {/* Arrowhead at bottom */}
-        <motion.polygon
-          points="190,70 200,85 210,70"
-          fill="hsl(var(--foreground))"
-          style={{ scale: dotScale }}
-          initial={{ scale: 0 }}
-        />
-
-        {/* Animated particle flowing along path */}
-        <motion.circle
-          r="4"
-          fill={index === 0 ? "hsl(75 100% 50%)" : index === 1 ? "hsl(330 100% 60%)" : "hsl(200 100% 50%)"}
-          initial={{ offsetDistance: "0%" }}
-          animate={{ offsetDistance: ["0%", "100%"] }}
-          transition={{ duration: 2, repeat: Infinity, ease: "linear", delay: index * 0.3 }}
-          style={{
-            offsetPath: `path("${isEven 
-              ? 'M 200 0 C 200 20, 260 30, 280 40 C 300 50, 240 60, 200 80' 
-              : 'M 200 0 C 200 20, 140 30, 120 40 C 100 50, 160 60, 200 80'
-            }")`,
+    <div ref={ref} className="relative h-12 md:h-20 flex items-center justify-center">
+      {/* Vertical line */}
+      <div className="relative w-[3px] h-full bg-foreground/10 rounded-full overflow-hidden">
+        <motion.div 
+          className="absolute top-0 left-0 w-full rounded-full origin-top"
+          style={{ 
+            scaleY, 
+            height: '100%',
+            backgroundColor: color,
           }}
         />
-      </svg>
+      </div>
+      {/* Arrow head */}
+      <motion.div 
+        className="absolute bottom-0 left-1/2 -translate-x-1/2 translate-y-1/2"
+        style={{ opacity: arrowOpacity }}
+      >
+        <svg width="16" height="10" viewBox="0 0 16 10" fill="none">
+          <path d="M1 1L8 8L15 1" stroke={color} strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" />
+        </svg>
+      </motion.div>
     </div>
   );
 }
@@ -206,7 +168,7 @@ export default function ScrollSection() {
             <div key={feature.number}>
               <FeatureCard feature={feature} index={index} />
               {index < features.length - 1 && (
-                <StepConnector index={index} accent={feature.accent} />
+                <StepConnector index={index} />
               )}
             </div>
           ))}
