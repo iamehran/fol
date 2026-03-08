@@ -398,6 +398,7 @@ function ConstellationIcon({
 function ConstellationField({ onActiveChange }: { onActiveChange?: (active: boolean) => void }) {
   const [isMobile, setIsMobile] = useState(false);
   const [activeNode, setActiveNode] = useState<number | null>(null);
+  const [clickScreenPos, setClickScreenPos] = useState({ x: 0, y: 0 });
   
   useEffect(() => {
     const checkMobile = () => setIsMobile(window.innerWidth < 768);
@@ -409,9 +410,10 @@ function ConstellationField({ onActiveChange }: { onActiveChange?: (active: bool
   const nodes = useMemo(() => generateConstellationNodes(isMobile), [isMobile]);
   const lines = useMemo(() => generateConstellationLines(nodes, isMobile), [nodes, isMobile]);
   
-  const handleIconClick = (nodeId: number) => {
+  const handleIconClick = (nodeId: number, e: React.MouseEvent) => {
     const newActive = activeNode === nodeId ? null : nodeId;
     setActiveNode(newActive);
+    setClickScreenPos({ x: e.clientX, y: e.clientY });
     onActiveChange?.(newActive !== null);
   };
 
@@ -422,7 +424,6 @@ function ConstellationField({ onActiveChange }: { onActiveChange?: (active: bool
   
   return (
     <div className="absolute inset-0" onClick={handleBackgroundClick}>
-      {/* Connecting Lines */}
       <svg className="absolute inset-0 w-full h-full pointer-events-none">
         {lines.map((line) => {
           const fromNode = nodes[line.from];
@@ -454,7 +455,6 @@ function ConstellationField({ onActiveChange }: { onActiveChange?: (active: bool
           );
         })}
         
-        {/* Animated dots flowing on lines */}
         {lines.map((line, index) => {
           const fromNode = nodes[line.from];
           const toNode = nodes[line.to];
@@ -483,28 +483,24 @@ function ConstellationField({ onActiveChange }: { onActiveChange?: (active: bool
         })}
       </svg>
       
-      {/* Icons */}
       {nodes.map((node, index) => (
         <ConstellationIcon 
           key={node.id} 
           node={node} 
           index={index}
-          onClick={() => handleIconClick(node.id)}
+          onClick={(e) => handleIconClick(node.id, e)}
           isActive={activeNode === node.id}
         />
       ))}
       
-      {/* Info Popup */}
-      <AnimatePresence>
-        {activeNode !== null && nodes[activeNode] && (
-          <IconInfoPopup
-            key={activeNode}
-            icon={nodes[activeNode].icon}
-            position={{ x: nodes[activeNode].x, y: nodes[activeNode].y }}
-            onClose={() => setActiveNode(null)}
-          />
-        )}
-      </AnimatePresence>
+      {activeNode !== null && nodes[activeNode] && (
+        <IconInfoPopup
+          key={activeNode}
+          icon={nodes[activeNode].icon}
+          screenPos={clickScreenPos}
+          onClose={() => { setActiveNode(null); onActiveChange?.(false); }}
+        />
+      )}
     </div>
   );
 }
