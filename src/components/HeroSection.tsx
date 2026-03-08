@@ -343,7 +343,7 @@ function ConstellationIcon({
 }: { 
   node: ConstellationNode; 
   index: number; 
-  onClick: () => void;
+  onClick: (e: React.MouseEvent) => void;
   isActive: boolean;
 }) {
   return (
@@ -375,7 +375,7 @@ function ConstellationIcon({
         ease: [0.34, 1.56, 0.64, 1],
         scale: { duration: 0.2 },
       }}
-      onClick={(e) => { e.stopPropagation(); onClick(); }}
+      onClick={(e) => { e.stopPropagation(); onClick(e); }}
     >
       <motion.div 
         className={`relative w-full h-full bg-background border-[2px] rounded-lg flex items-center justify-center transition-colors duration-200 ${
