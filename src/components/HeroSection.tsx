@@ -1,5 +1,6 @@
 import { motion, useScroll, useTransform, AnimatePresence } from 'framer-motion';
-import { useState, useRef, useMemo, useEffect } from 'react';
+import { useState, useRef, useMemo, useEffect, useCallback } from 'react';
+import { createPortal } from 'react-dom';
 import { BackgroundLines } from '@/components/ui/background-lines';
 import { X } from 'lucide-react';
 
@@ -234,79 +235,103 @@ function generateConstellationLines(nodes: ConstellationNode[], isMobile: boolea
 // Info popup component for clicked icons
 function IconInfoPopup({ 
   icon, 
-  position, 
+  screenPos, 
   onClose 
 }: { 
   icon: typeof baseIcons[0]; 
-  position: { x: number; y: number }; 
+  screenPos: { x: number; y: number }; 
   onClose: () => void;
 }) {
-  // Smart positioning: open popup away from edges
-  const isRight = position.x > 60;
-  const isBottom = position.y > 55;
-  
-  const popupStyle: React.CSSProperties = {
-    left: isRight ? `${position.x - 2}%` : `${position.x + 2}%`,
-    top: isBottom ? `${position.y - 2}%` : `${position.y + 2}%`,
-    transform: [
-      isRight ? 'translateX(-100%)' : 'translateX(0)',
-      isBottom ? 'translateY(-100%)' : 'translateY(0)',
-    ].join(' '),
-  };
+  const popupRef = useRef<HTMLDivElement>(null);
+  const [adjustedPos, setAdjustedPos] = useState(screenPos);
 
-  return (
-    <motion.div
-      className="absolute z-[100] w-64 md:w-80"
-      style={popupStyle}
-      initial={{ opacity: 0, scale: 0.8, y: 10 }}
-      animate={{ opacity: 1, scale: 1, y: 0 }}
-      exit={{ opacity: 0, scale: 0.8, y: 10 }}
-      transition={{ duration: 0.25, ease: [0.23, 1, 0.32, 1] }}
-    >
-      <div className="bg-background border-[3px] border-foreground shadow-brutal p-4 relative">
-        {/* Close button */}
-        <button 
-          onClick={onClose}
-          className="absolute top-2 right-2 w-6 h-6 flex items-center justify-center hover:bg-muted rounded-sm transition-colors"
-        >
-          <X size={14} />
-        </button>
-        
-        {/* Header */}
-        <div className="flex items-center gap-3 mb-3 pr-6">
-          <div className="w-10 h-10 bg-secondary border-2 border-foreground/20 rounded-lg flex items-center justify-center shrink-0">
-            <img src={icon.src} alt={icon.alt} className="w-6 h-6 object-contain" />
+  useEffect(() => {
+    // After render, measure popup and clamp within viewport
+    if (popupRef.current) {
+      const rect = popupRef.current.getBoundingClientRect();
+      const vw = window.innerWidth;
+      const vh = window.innerHeight;
+      
+      let x = screenPos.x;
+      let y = screenPos.y;
+      
+      // Default: open to the right and below
+      // If too far right, flip left
+      if (x + rect.width + 8 > vw) {
+        x = screenPos.x - rect.width - 8;
+      } else {
+        x = screenPos.x + 8;
+      }
+      
+      // If too far down, flip up
+      if (y + rect.height + 8 > vh) {
+        y = screenPos.y - rect.height - 8;
+      } else {
+        y = screenPos.y + 8;
+      }
+      
+      // Final clamp
+      x = Math.max(8, Math.min(x, vw - rect.width - 8));
+      y = Math.max(8, Math.min(y, vh - rect.height - 8));
+      
+      setAdjustedPos({ x, y });
+    }
+  }, [screenPos]);
+
+  return createPortal(
+    <AnimatePresence>
+      <motion.div
+        ref={popupRef}
+        className="fixed z-[9999] w-64 md:w-80"
+        style={{ left: adjustedPos.x, top: adjustedPos.y }}
+        initial={{ opacity: 0, scale: 0.8 }}
+        animate={{ opacity: 1, scale: 1 }}
+        exit={{ opacity: 0, scale: 0.8 }}
+        transition={{ duration: 0.25, ease: [0.23, 1, 0.32, 1] }}
+      >
+        <div className="bg-background border-[3px] border-foreground shadow-brutal p-4 relative">
+          <button 
+            onClick={onClose}
+            className="absolute top-2 right-2 w-6 h-6 flex items-center justify-center hover:bg-muted rounded-sm transition-colors"
+          >
+            <X size={14} />
+          </button>
+          
+          <div className="flex items-center gap-3 mb-3 pr-6">
+            <div className="w-10 h-10 bg-secondary border-2 border-foreground/20 rounded-lg flex items-center justify-center shrink-0">
+              <img src={icon.src} alt={icon.alt} className="w-6 h-6 object-contain" />
+            </div>
+            <div>
+              <h4 className="font-bold text-sm">{icon.alt}</h4>
+              <p className="text-xs text-muted-foreground">{icon.projects.length} project{icon.projects.length > 1 ? 's' : ''} built</p>
+            </div>
           </div>
-          <div>
-            <h4 className="font-bold text-sm">{icon.alt}</h4>
-            <p className="text-xs text-muted-foreground">{icon.projects.length} project{icon.projects.length > 1 ? 's' : ''} built</p>
+          
+          <div className="space-y-2">
+            {icon.projects.map((project, i) => (
+              <motion.div
+                key={i}
+                initial={{ opacity: 0, x: -10 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ delay: 0.1 + i * 0.08 }}
+                className="bg-secondary/50 border border-foreground/10 p-2.5 rounded-sm"
+              >
+                <p className="font-semibold text-xs mb-0.5">{project.title}</p>
+                <p className="text-[10px] text-muted-foreground leading-relaxed">{project.desc}</p>
+                <div className="flex gap-1 mt-1.5">
+                  {project.tags.map((tag) => (
+                    <span key={tag} className="text-[9px] px-1.5 py-0.5 bg-primary/20 text-primary-foreground border border-foreground/10 font-medium">
+                      {tag}
+                    </span>
+                  ))}
+                </div>
+              </motion.div>
+            ))}
           </div>
         </div>
-        
-        {/* Projects */}
-        <div className="space-y-2">
-          {icon.projects.map((project, i) => (
-            <motion.div
-              key={i}
-              initial={{ opacity: 0, x: -10 }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{ delay: 0.1 + i * 0.08 }}
-              className="bg-secondary/50 border border-foreground/10 p-2.5 rounded-sm"
-            >
-              <p className="font-semibold text-xs mb-0.5">{project.title}</p>
-              <p className="text-[10px] text-muted-foreground leading-relaxed">{project.desc}</p>
-              <div className="flex gap-1 mt-1.5">
-                {project.tags.map((tag) => (
-                  <span key={tag} className="text-[9px] px-1.5 py-0.5 bg-primary/20 text-primary-foreground border border-foreground/10 font-medium">
-                    {tag}
-                  </span>
-                ))}
-              </div>
-            </motion.div>
-          ))}
-        </div>
-      </div>
-    </motion.div>
+      </motion.div>
+    </AnimatePresence>,
+    document.body
   );
 }
 
@@ -318,7 +343,7 @@ function ConstellationIcon({
 }: { 
   node: ConstellationNode; 
   index: number; 
-  onClick: () => void;
+  onClick: (e: React.MouseEvent) => void;
   isActive: boolean;
 }) {
   return (
@@ -350,7 +375,7 @@ function ConstellationIcon({
         ease: [0.34, 1.56, 0.64, 1],
         scale: { duration: 0.2 },
       }}
-      onClick={(e) => { e.stopPropagation(); onClick(); }}
+      onClick={(e) => { e.stopPropagation(); onClick(e); }}
     >
       <motion.div 
         className={`relative w-full h-full bg-background border-[2px] rounded-lg flex items-center justify-center transition-colors duration-200 ${
@@ -373,6 +398,7 @@ function ConstellationIcon({
 function ConstellationField({ onActiveChange }: { onActiveChange?: (active: boolean) => void }) {
   const [isMobile, setIsMobile] = useState(false);
   const [activeNode, setActiveNode] = useState<number | null>(null);
+  const [clickScreenPos, setClickScreenPos] = useState({ x: 0, y: 0 });
   
   useEffect(() => {
     const checkMobile = () => setIsMobile(window.innerWidth < 768);
@@ -384,9 +410,10 @@ function ConstellationField({ onActiveChange }: { onActiveChange?: (active: bool
   const nodes = useMemo(() => generateConstellationNodes(isMobile), [isMobile]);
   const lines = useMemo(() => generateConstellationLines(nodes, isMobile), [nodes, isMobile]);
   
-  const handleIconClick = (nodeId: number) => {
+  const handleIconClick = (nodeId: number, e: React.MouseEvent) => {
     const newActive = activeNode === nodeId ? null : nodeId;
     setActiveNode(newActive);
+    setClickScreenPos({ x: e.clientX, y: e.clientY });
     onActiveChange?.(newActive !== null);
   };
 
@@ -397,7 +424,6 @@ function ConstellationField({ onActiveChange }: { onActiveChange?: (active: bool
   
   return (
     <div className="absolute inset-0" onClick={handleBackgroundClick}>
-      {/* Connecting Lines */}
       <svg className="absolute inset-0 w-full h-full pointer-events-none">
         {lines.map((line) => {
           const fromNode = nodes[line.from];
@@ -429,7 +455,6 @@ function ConstellationField({ onActiveChange }: { onActiveChange?: (active: bool
           );
         })}
         
-        {/* Animated dots flowing on lines */}
         {lines.map((line, index) => {
           const fromNode = nodes[line.from];
           const toNode = nodes[line.to];
@@ -458,28 +483,24 @@ function ConstellationField({ onActiveChange }: { onActiveChange?: (active: bool
         })}
       </svg>
       
-      {/* Icons */}
       {nodes.map((node, index) => (
         <ConstellationIcon 
           key={node.id} 
           node={node} 
           index={index}
-          onClick={() => handleIconClick(node.id)}
+          onClick={(e) => handleIconClick(node.id, e)}
           isActive={activeNode === node.id}
         />
       ))}
       
-      {/* Info Popup */}
-      <AnimatePresence>
-        {activeNode !== null && nodes[activeNode] && (
-          <IconInfoPopup
-            key={activeNode}
-            icon={nodes[activeNode].icon}
-            position={{ x: nodes[activeNode].x, y: nodes[activeNode].y }}
-            onClose={() => setActiveNode(null)}
-          />
-        )}
-      </AnimatePresence>
+      {activeNode !== null && nodes[activeNode] && (
+        <IconInfoPopup
+          key={activeNode}
+          icon={nodes[activeNode].icon}
+          screenPos={clickScreenPos}
+          onClose={() => { setActiveNode(null); onActiveChange?.(false); }}
+        />
+      )}
     </div>
   );
 }
