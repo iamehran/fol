@@ -1,5 +1,6 @@
 import { motion, useScroll, useTransform, AnimatePresence } from 'framer-motion';
-import { useState, useRef, useMemo, useEffect } from 'react';
+import { useState, useRef, useMemo, useEffect, useCallback } from 'react';
+import { createPortal } from 'react-dom';
 import { BackgroundLines } from '@/components/ui/background-lines';
 import { X } from 'lucide-react';
 
