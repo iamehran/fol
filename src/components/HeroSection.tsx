@@ -366,7 +366,7 @@ function ConstellationIcon({
   );
 }
 
-function ConstellationField() {
+function ConstellationField({ onActiveChange }: { onActiveChange?: (active: boolean) => void }) {
   const [isMobile, setIsMobile] = useState(false);
   const [activeNode, setActiveNode] = useState<number | null>(null);
   
