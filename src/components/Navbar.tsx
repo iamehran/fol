@@ -1,15 +1,17 @@
 import { motion, AnimatePresence } from 'framer-motion';
 import { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { X } from 'lucide-react';
 import figoutLogo from '@/assets/figout-logo-new.png';
 
 const navLinks = [
   { href: '#what-we-do', label: 'What we do' },
   { href: '#testimonials', label: 'Testimonials' },
-  { href: '#manifesto', label: 'Manifesto' },
+  { href: '/manifesto', label: 'Manifesto' },
 ];
 
 export default function Navbar() {
+  const navigate = useNavigate();
   const [isOpen, setIsOpen] = useState(false);
 
   return (
@@ -44,7 +46,11 @@ export default function Navbar() {
                   href={link.href}
                   onClick={(e) => {
                     e.preventDefault();
-                    document.querySelector(link.href)?.scrollIntoView({ behavior: 'smooth' });
+                    if (link.href.startsWith('/')) {
+                      navigate(link.href);
+                    } else {
+                      document.querySelector(link.href)?.scrollIntoView({ behavior: 'smooth' });
+                    }
                   }}
                   className="text-background/80 hover:text-background text-sm font-medium transition-colors duration-200"
                 >
@@ -94,7 +100,11 @@ export default function Navbar() {
                 onClick={(e) => {
                   e.preventDefault();
                   setIsOpen(false);
-                  document.querySelector(link.href)?.scrollIntoView({ behavior: 'smooth' });
+                  if (link.href.startsWith('/')) {
+                    navigate(link.href);
+                  } else {
+                    document.querySelector(link.href)?.scrollIntoView({ behavior: 'smooth' });
+                  }
                 }}
                 className="text-foreground/80 hover:text-foreground text-base font-medium transition-colors"
               >
